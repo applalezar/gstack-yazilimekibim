@@ -1,486 +1,594 @@
 # gstack
 
-> "I don't think I've typed like a line of code probably since December, basically, which is an extremely large change." — [Andrej Karpathy](https://fortune.com/2026/03/21/andrej-karpathy-openai-cofounder-ai-agents-coding-state-of-psychosis-openclaw/), No Priors podcast, March 2026
+> "Aralık ayından beri neredeyse hiç kod yazmadım, bu da son derece büyük bir değişiklik." — [Andrej Karpathy](https://fortune.com/2026/03/21/andrej-karpathy-openai-cofounder-ai-agents-coding-state-of-psychosis-openclaw/), No Priors podcast, Mart 2026
 
-When I heard Karpathy say this, I wanted to find out how. How does one person ship like a team of twenty? Peter Steinberger built [OpenClaw](https://github.com/openclaw/openclaw) — 247K GitHub stars — essentially solo with AI agents. The revolution is here. A single builder with the right tooling can move faster than a traditional team.
+Karpathy'nin bunu söylediğini duyduğumda, nasıl olduğunu öğrenmek istedim. Bir kişi yirmi kişilik bir ekip gibi nasıl iş çıkarabilir? Peter Steinberger, [OpenClaw](https://github.com/openclaw/openclaw) — 247 bin GitHub yıldızı — yapay zeka ajanlarıyla esasen tek başına geliştirdi. Devrim burada. Doğru araçlara sahip tek bir geliştirici, geleneksel bir ekipten daha hızlı hareket edebilir.
 
-I'm [Garry Tan](https://x.com/garrytan), President & CEO of [Y Combinator](https://www.ycombinator.com/). I've worked with thousands of startups — Coinbase, Instacart, Rippling — when they were one or two people in a garage. Before YC, I was one of the first eng/PM/designers at Palantir, cofounded Posterous (sold to Twitter), and built Bookface, YC's internal social network.
+Ben [Garry Tan](https://x.com/garrytan), [Y Combinator](https://www.ycombinator.com/) Başkanı ve CEO'suyum. Coinbase, Instacart, Rippling gibi binlerce startup ile, daha bir veya iki kişiyle bir garajda çalıştıkları zamanlardan beri birlikte çalıştım. YC'den önce, Palantir'de ilk mühendis/proje yöneticisi/tasarımcılardan biriydim, Posterous'u kurdum (Twitter'a satıldı) ve YC'nin iç sosyal ağı Bookface'i geliştirdim.
 
-**gstack is my answer.** I've been building products for twenty years, and right now I'm shipping more products than I ever have. In the last 60 days: 3 production services, 40+ shipped features, part-time, while running YC full-time. On logical code change — not raw LOC, which AI inflates — my 2026 run rate is **~810× my 2013 pace** (11,417 vs 14 logical lines/day). Year-to-date (through April 18), 2026 has already produced **240× the entire 2013 year**. Measured across 40 public + private `garrytan/*` repos including Bookface, after excluding one demo repo. AI wrote most of it. The point isn't who typed it, it's what shipped.
+**gstack benim cevabım.** Yirmi yıldır ürün geliştiriyorum ve şu anda her zamankinden daha fazla ürün piyasaya sürüyorum. Son 60 günde: 3 üretim hizmeti, 40'tan fazla piyasaya sürülen özellik, yarı zamanlı çalışırken YC'yi tam zamanlı olarak yönetiyorum. Mantıksal kod değişikliğine göre —yapay zekanın şişirdiği ham satır sayısına değil— 2026 yılındaki çalışma hızım **2013 yılındaki hızımın yaklaşık 810 katı** (11.417 satır/gün vs 14 mantıksal satır/gün). Yıl başından (18 Nisan'a kadar) 2026 yılı, **2013 yılının tamamının 240 katı** kadar üretim gerçekleştirdi. Bu ölçüm, bir demo deposu hariç, Bookface dahil 40'tan fazla genel ve özel `garrytan/*` deposunda yapıldı. Çoğunu yapay zeka yazdı. Önemli olan kimin yazdığı değil, neyin piyasaya sürüldüğüdür.
 
-> The LOC critics aren't wrong that raw line counts inflate with AI. They are wrong that normalized-for-inflation, I'm less productive. I'm more productive, by a lot. Full methodology, caveats, and reproduction script: **[On the LOC Controversy](docs/ON_THE_LOC_CONTROVERSY.md)**.
+> Ham satır sayılarının yapay zeka ile şişirildiği konusunda satır sayısı eleştirmenleri haksız değil. Ancak, enflasyona göre normalize edildiğinde daha az üretken olduğum konusunda yanılıyorlar. Çok daha üretkenim. Tam metodoloji, uyarılar ve yeniden üretme betiği: **[LOC Tartışması Üzerine](docs/ON_THE_LOC_CONTROVERSY.md)**.
 
-**2026 — 1,237 contributions and counting:**
+**2026 — 1.237 katkı ve artmaya devam ediyor:**
 
-![GitHub contributions 2026 — 1,237 contributions, massive acceleration in Jan-Mar](docs/images/github-2026.png)
+![GitHub katkıları 2026 — 1.237 katkı, Ocak-Mart aylarında büyük ivme](docs/images/github-2026.png)
 
-**2013 — when I built Bookface at YC (772 contributions):**
+**2013 — YC'de Bookface'i kurduğum zaman (772 katkı):**
 
-![GitHub contributions 2013 — 772 contributions building Bookface at YC](docs/images/github-2013.png)
+![GitHub katkıları 2013 — YC'de Bookface'i kuran 772 katkı](docs/images/github-2013.png)
 
-Same person. Different era. The difference is the tooling.
+Aynı kişi. Farklı dönem. Fark, kullanılan araçlarda.
 
-**gstack is how I do it.** It turns Claude Code into a virtual engineering team — a CEO who rethinks the product, an eng manager who locks architecture, a designer who catches AI slop, a reviewer who finds production bugs, a QA lead who opens a real browser, a security officer who runs OWASP + STRIDE audits, and a release engineer who ships the PR. Twenty-three specialists and eight power tools, all slash commands, all Markdown, all free, MIT license.
+**gstack benim çalışma yöntemim.** Claude Code'u sanal bir mühendislik ekibine dönüştürüyor: Ürünü yeniden düşünen bir CEO, mimariyi kilitleyen bir mühendislik yöneticisi, yapay zeka hatalarını yakalayan bir tasarımcı, üretim hatalarını bulan bir gözden geçiren, gerçek bir tarayıcı açan bir QA lideri, OWASP + STRIDE denetimleri yapan bir güvenlik görevlisi ve PR'ı gönderen bir sürüm mühendisi. Yirmi üç uzman ve sekiz güçlü araç, hepsi slash komutları, hepsi Markdown, hepsi ücretsiz, MIT lisansı.
 
-This is my open source software factory. I use it every day. I'm sharing it because these tools should be available to everyone.
+Bu benim açık kaynak yazılım fabrikam. Her gün kullanıyorum. Bunu paylaşıyorum çünkü bu araçlar herkesin kullanımına açık olmalı.
 
-Fork it. Improve it. Make it yours. And if you want to hate on free open source software — you're welcome to, but I'd rather you just try it first.
+Çatallayın. Geliştirin. Kendinize ait yapın. Ve eğer ücretsiz açık kaynak yazılımlardan nefret etmek istiyorsanız - buyurun, ama önce denemenizi tercih ederim.
 
-**Who this is for:**
-- **Founders and CEOs** — especially technical ones who still want to ship
-- **First-time Claude Code users** — structured roles instead of a blank prompt
-- **Tech leads and staff engineers** — rigorous review, QA, and release automation on every PR
+**Kimler İçin:**
+- **Kurucular ve CEO'lar** — özellikle hala ürün piyasaya sürmek isteyen teknik yöneticiler
+- **Claude Code'u ilk kez kullananlar** — boş bir komut istemi yerine yapılandırılmış roller
+- **Teknik liderler ve kıdemli mühendisler** — her PR'da titiz inceleme, QA ve sürüm otomasyonu
 
-## Quick start
+## Hızlı Başlangıç
 
-1. Install gstack (30 seconds — see below)
-2. Run `/office-hours` — describe what you're building
-3. Run `/plan-ceo-review` on any feature idea
-4. Run `/review` on any branch with changes
-5. Run `/qa` on your staging URL
-6. Stop there. You'll know if this is for you.
+1. gstack'i kurun (30 saniye — aşağıya bakın)
+2. `/office-hours` komutunu çalıştırın — ne geliştirdiğinizi açıklayın
+3. Herhangi bir özellik fikri için `/plan-ceo-review` komutunu çalıştırın
+4. Değişiklik içeren herhangi bir dal için `/review` komutunu çalıştırın
+5. Hazırlık URL'niz için `/qa` komutunu çalıştırın
+6. Orada durun. Bunun sizin için uygun olup olmadığını anlayacaksınız.
 
-## Install — 30 seconds
+## Kurulum — 30 saniye
 
-**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+, [Node.js](https://nodejs.org/) (Windows only)
+**Gereksinimler:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+, [Node.js](https://nodejs.org/) (yalnızca Windows)
 
-### Step 1: Install on your machine
+### Adım 1: Makinenize kurun
 
-Open Claude Code and paste this. Claude does the rest.
+Claude Code'u açın ve bunu yapıştırın. Claude gerisini halleder.
 
-> Install gstack: run **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup`** then add a "gstack" section to CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /setup-gbrain, /retro, /investigate, /document-release, /document-generate, /codex, /cso, /autoplan, /plan-devex-review, /devex-review, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, /learn. Then ask the user if they also want to add gstack to the current project so teammates get it.
-
-### Step 2: Team mode — auto-update for shared repos (recommended)
-
-From inside your repo, paste this. Switches you to team mode, bootstraps the repo so teammates get gstack automatically, and commits the change:
+> gstack'i yükleyin: **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup`** komutunu çalıştırın, ardından CLAUDE.md dosyasına, tüm web tarama işlemleri için gstack'in /browse becerisini kullanmayı, mcp\_\_claude-in-chrome\_\_\* araçlarını asla kullanmamayı belirten ve mevcut becerileri listeleyen bir "gstack" bölümü ekleyin: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /setup-gbrain, /retro, /investigate, /document-release, /document-generate, /codex, /cso, /autoplan, /plan-devex-review, /devex-review, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, /learn. Ardından, kullanıcıya gstack'i mevcut projeye eklemek isteyip istemediğini sorun, böylece ekip arkadaşları da onu kullanabilir.
+`test` komutu, gstack'i otomatik olarak alır ve değişikliği kaydeder:
 
 ```bash
 (cd ~/.claude/skills/gstack && ./setup --team) && ~/.claude/skills/gstack/bin/gstack-team-init required && git add .claude/ CLAUDE.md && git commit -m "require gstack for AI-assisted work"
 ```
 
-No vendored files in your repo, no version drift, no manual upgrades. Every Claude Code session starts with a fast auto-update check (throttled to once/hour, network-failure-safe, completely silent).
+Deponuzda hiçbir yedek dosya yok, sürüm kayması yok, manuel yükseltme yok. Her Claude Code oturumu, hızlı bir otomatik güncelleme kontrolüyle başlar (saatte bir kez ile sınırlandırılmış, ağ arızalarına karşı güvenli, tamamen sessiz).
 
-Swap `required` for `optional` if you'd rather nudge teammates than block them.
+Eğer takım arkadaşlarınızı engellemek yerine onlara hatırlatmak isterseniz, `required` yerine `optional` kullanabilirsiniz.
 
 ### OpenClaw
 
-OpenClaw spawns Claude Code sessions via ACP, so every gstack skill just works
-when Claude Code has gstack installed. Paste this to your OpenClaw agent:
+OpenClaw, ACP aracılığıyla Claude Code oturumları başlatır, bu nedenle Claude Code'da gstack yüklü olduğunda her gstack becerisi sorunsuz çalışır.
+Bunu OpenClaw ajanınıza yapıştırın:
 
-> Install gstack: run `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` to install gstack for Claude Code. Then add a "Coding Tasks" section to AGENTS.md that says: when spawning Claude Code sessions for coding work, tell the session to use gstack skills. Include these examples — security audit: "Load gstack. Run /cso", code review: "Load gstack. Run /review", QA test a URL: "Load gstack. Run /qa https://...", build a feature end-to-end: "Load gstack. Run /autoplan, implement the plan, then run /ship", plan before building: "Load gstack. Run /office-hours then /autoplan. Save the plan, don't implement."
+> gstack'i yükleyin: Claude Code için gstack'i yüklemek için `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` komutunu çalıştırın. Ardından AGENTS.md dosyasına "Kodlama Görevleri" bölümüne şunu ekleyin: Kodlama işi için Claude Code oturumları başlatırken, oturuma gstack becerilerini kullanmasını söyleyin. Bu örnekleri ekleyin — güvenlik denetimi: "gstack'i yükleyin. /cso komutunu çalıştırın", kod incelemesi: "gstack'i yükleyin. /review komutunu çalıştırın", bir URL'yi QA testi yapın: "gstack'i yükleyin. /qa https://..." komutunu çalıştırın, bir özelliği uçtan uca geliştirin: "gstack'i yükleyin. /autoplan komutunu çalıştırın, planı uygulayın, ardından /ship komutunu çalıştırın", geliştirmeden önce planlama yapın: "gstack'i yükleyin. /office-hours komutunu çalıştırın, ardından /autoplan komutunu çalıştırın. Planı kaydedin, uygulamayın."
 
-**After setup, just talk to your OpenClaw agent naturally:**
+**Kurulumdan sonra, OpenClaw temsilcinizle doğal bir şekilde konuşun:**
 
-| You say | What happens |
+| Siz söylersiniz | Ne olur |
+
 |---------|-------------|
-| "Fix the typo in README" | Simple — Claude Code session, no gstack needed |
-| "Run a security audit on this repo" | Spawns Claude Code with `Run /cso` |
-| "Build me a notifications feature" | Spawns Claude Code with /autoplan → implement → /ship |
-| "Help me plan the v2 API redesign" | Spawns Claude Code with /office-hours → /autoplan, saves plan |
 
-See [docs/OPENCLAW.md](docs/OPENCLAW.md) for advanced dispatch routing and
-the gstack-lite/gstack-full prompt templates.
+| "README dosyasındaki yazım hatasını düzeltin" | Basit — Claude Code oturumu, gstack gerekmez |
 
-### Native OpenClaw Skills (via ClawHub)
+| "Bu depoda bir güvenlik denetimi çalıştırın" | `Run /cso` ile Claude Code başlatır |
 
-Four methodology skills that work directly in your OpenClaw agent, no Claude Code
-session needed. Install from ClawHub:
+| "Bana bir bildirim özelliği geliştirin" | Claude Code'u /autoplan → implement → /ship ile başlatır |
 
+| "v2 API yeniden tasarımını planlamama yardım edin" | Claude Code'u /office-hours → /autoplan ile başlatır, planı kaydeder |
+
+Gelişmiş dağıtım yönlendirmesi ve gstack-lite/gstack-full komut istemi şablonları için [docs/OPENCLAW.md](docs/OPENCLAW.md) dosyasına bakın.
+
+gstack-lite/gstack-full komut istemi şablonları.
+
+### Yerel OpenClaw Becerileri (ClawHub aracılığıyla)
+
+OpenClaw ajanınızda doğrudan çalışan dört metodoloji becerisi, Claude Code oturumuna gerek yok.
+ClawHub'dan yükleyin:
+
+``` clawhub install gstack-openclaw-office-hours gstack-openclaw-ceo-review gstack-openclaw-investigate gstack-openclaw-retro
 ```
-clawhub install gstack-openclaw-office-hours gstack-openclaw-ceo-review gstack-openclaw-investigate gstack-openclaw-retro
-```
 
-| Skill | What it does |
+| Beceri | Ne işe yarar |
+
 |-------|-------------|
-| `gstack-openclaw-office-hours` | Product interrogation with 6 forcing questions |
-| `gstack-openclaw-ceo-review` | Strategic challenge with 4 scope modes |
-| `gstack-openclaw-investigate` | Root cause debugging methodology |
-| `gstack-openclaw-retro` | Weekly engineering retrospective |
 
-These are conversational skills. Your OpenClaw agent runs them directly via chat.
+| `gstack-openclaw-office-hours` | 6 zorlayıcı soruyla ürün sorgulaması |
 
-### Other AI Agents
+| `gstack-openclaw-ceo-review` | 4 kapsam moduyla stratejik meydan okuma |
 
-gstack works on 10 AI coding agents, not just Claude. Setup auto-detects which
-agents you have installed:
+| `gstack-openclaw-investigate` | Kök neden hata ayıklama metodolojisi |
+
+| `gstack-openclaw-retro` | Haftalık mühendislik retrospektifi |
+
+Bunlar konuşma becerileridir. OpenClaw ajanınız bunları doğrudan sohbet yoluyla çalıştırır.
+
+### Diğer Yapay Zeka Ajanları
+
+gstack, yalnızca Claude ile sınırlı kalmayıp 10 farklı yapay zeka kodlama ajanı üzerinde çalışır. Kurulum, hangi ajanların kurulu olduğunu otomatik olarak algılar:
 
 ```bash
 git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
 cd ~/gstack && ./setup
 ```
 
-Or target a specific agent with `./setup --host <name>`:
+Veya `./setup --host <ad>` ile belirli bir ajanı hedefleyin:
 
-| Agent | Flag | Skills install to |
+| Ajan | Bayrak | Becerilerin kurulacağı yer |
+
 |-------|------|-------------------|
+
 | OpenAI Codex CLI | `--host codex` | `~/.codex/skills/gstack-*/` |
+
 | OpenCode | `--host opencode` | `~/.config/opencode/skills/gstack-*/` |
-| Cursor | `--host cursor` | `~/.cursor/skills/gstack-*/` |
-| Factory Droid | `--host factory` | `~/.factory/skills/gstack-*/` |
+
+| İmleç | `--host cursor` | `~/.cursor/skills/gstack-*/` |
+
+| Fabrika Droidi | `--host factory` | `~/.factory/skills/gstack-*/` |
+
 | Slate | `--host slate` | `~/.slate/skills/gstack-*/` |
+
 | Kiro | `--host kiro` | `~/.kiro/skills/gstack-*/` |
+
 | Hermes | `--host hermes` | `~/.hermes/skills/gstack-*/` |
+
 | GBrain (mod) | `--host gbrain` | `~/.gbrain/skills/gstack-*/` |
 
-**Want to add support for another agent?** See [docs/ADDING_A_HOST.md](docs/ADDING_A_HOST.md).
-It's one TypeScript config file, zero code changes.
+**Başka bir ajan için destek eklemek mi istiyorsunuz?** [docs/ADDING_A_HOST.md](docs/ADDING_A_HOST.md) dosyasına bakın.
 
-## See it work
+Tek bir TypeScript yapılandırma dosyası, sıfır kod değişikliği.
+
+## Çalışmasını görün
 
 ```
-You:    I want to build a daily briefing app for my calendar.
-You:    /office-hours
-Claude: [asks about the pain — specific examples, not hypotheticals]
+Siz: Takvimim için günlük bir bilgilendirme uygulaması oluşturmak istiyorum.
 
-You:    Multiple Google calendars, events with stale info, wrong locations.
-        Prep takes forever and the results aren't good enough...
+Siz: /ofis-saatleri
+Claude: [sorunları soruyor - varsayımsal değil, belirli örnekler]
 
-Claude: I'm going to push back on the framing. You said "daily briefing
-        app." But what you actually described is a personal chief of
-        staff AI.
-        [extracts 5 capabilities you didn't realize you were describing]
-        [challenges 4 premises — you agree, disagree, or adjust]
-        [generates 3 implementation approaches with effort estimates]
-        RECOMMENDATION: Ship the narrowest wedge tomorrow, learn from
-        real usage. The full vision is a 3-month project — start with
-        the daily briefing that actually works.
-        [writes design doc → feeds into downstream skills automatically]
+Siz: Birden fazla Google takvimi, güncel olmayan bilgiler içeren etkinlikler, yanlış konumlar.
 
-You:    /plan-ceo-review
-        [reads the design doc, challenges scope, runs 10-section review]
+Hazırlık sonsuza kadar sürüyor ve sonuçlar yeterince iyi değil...
 
-You:    /plan-eng-review
-        [ASCII diagrams for data flow, state machines, error paths]
-        [test matrix, failure modes, security concerns]
+Claude: Çerçeveleme konusunda itiraz edeceğim. "Günlük bilgilendirme
+uygulaması" dediniz. Ama aslında tanımladığınız şey kişisel bir başçavuş
+yapay zekası.
 
-You:    Approve plan. Exit plan mode.
-        [writes 2,400 lines across 11 files. ~8 minutes.]
+[Tanımladığınızı fark etmediğiniz 5 yeteneği çıkarır]
 
-You:    /review
-        [AUTO-FIXED] 2 issues. [ASK] Race condition → you approve fix.
+[4 önermeyi sorgular — kabul edersiniz, katılmazsınız veya ayarlarsınız]
 
-You:    /qa https://staging.myapp.com
-        [opens real browser, clicks through flows, finds and fixes a bug]
+[Çaba tahminleriyle 3 uygulama yaklaşımı oluşturur]
 
-You:    /ship
-        Tests: 42 → 51 (+9 new). PR: github.com/you/app/pull/42
+ÖNERİ: Yarın en dar dilimi gönderin, gerçek kullanımdan öğrenin.
+
+Tam vizyon 3 aylık bir projedir — işe yarayan günlük brifingle başlayın.
+
+[Tasarım belgesini yazar → otomatik olarak alt kademe becerilere aktarır]
+
+Siz: /plan-ceo-incelemesi
+
+[Tasarım belgesini okur, kapsamı sorgular, 10 bölümlü inceleme yapar]
+
+Siz: /plan-mühendis-incelemesi
+
+[Veri akışı, durum makineleri, hata yolları için ASCII diyagramları]
+
+[Test matrisi, arıza modları, güvenlik endişeleri]
+
+Siz: Planı onaylayın. Plan modundan çıkın.
+
+[yaz]
+[11 dosyada toplam 2400 satır. ~8 dakika.]
+
+Siz: /review
+
+[OTOMATİK OLARAK DÜZELTİLDİ] 2 sorun. [SORU] Yarış durumu → düzeltmeyi onaylıyorsunuz.
+
+Siz: /qa https://staging.myapp.com
+
+[gerçek tarayıcıyı açar, akışlarda ilerler, bir hata bulur ve düzeltir]
+
+Siz: /ship
+Testler: 42 → 51 (+9 yeni). PR: github.com/you/app/pull/42
 ```
 
-You said "daily briefing app." The agent said "you're building a chief of staff AI" — because it listened to your pain, not your feature request. Eight commands, end to end. That is not a copilot. That is a team.
+Siz "günlük bilgilendirme uygulaması" dediniz. Ajan, "bir genelkurmay başkanı yapay zekası geliştiriyorsunuz" dedi - çünkü özellik isteğinizi değil, acınızı dinledi. Sekiz komut, baştan sona. Bu bir yardımcı pilot değil. Bu bir ekip.
 
-## The sprint
+## Sprint
 
-gstack is a process, not a collection of tools. The skills run in the order a sprint runs:
+gstack bir süreçtir, bir araç koleksiyonu değil. Beceriler, bir sprintin çalışma sırasına göre ilerler:
 
-**Think → Plan → Build → Review → Test → Ship → Reflect**
+**Düşün → Planla → Oluştur → Gözden Geçir → Test Et → Gönder → Yansıt**
 
-Each skill feeds into the next. `/office-hours` writes a design doc that `/plan-ceo-review` reads. `/plan-eng-review` writes a test plan that `/qa` picks up. `/review` catches bugs that `/ship` verifies are fixed. Nothing falls through the cracks because every step knows what came before it.
+Her beceri bir sonrakini besler. `/office-hours`, `/plan-ceo-review`'ın okuduğu bir tasarım belgesi yazar. `/plan-eng-review`, `/qa`'nın aldığı bir test planı yazar. `/review`, `/ship`'in düzeltildiğini doğruladığı hataları yakalar. Her adım, kendisinden önce ne olduğunu bildiği için hiçbir şey gözden kaçmaz.
 
-| Skill | Your specialist | What they do |
+| Beceri | Uzmanınız | Ne yaparlar |
+
 |-------|----------------|--------------|
-| `/office-hours` | **YC Office Hours** | Start here. Six forcing questions that reframe your product before you write code. Pushes back on your framing, challenges premises, generates implementation alternatives. Design doc feeds into every downstream skill. |
-| `/plan-ceo-review` | **CEO / Founder** | Rethink the problem. Find the 10-star product hiding inside the request. Four modes: Expansion, Selective Expansion, Hold Scope, Reduction. |
-| `/plan-eng-review` | **Eng Manager** | Lock in architecture, data flow, diagrams, edge cases, and tests. Forces hidden assumptions into the open. |
-| `/plan-design-review` | **Senior Designer** | Rates each design dimension 0-10, explains what a 10 looks like, then edits the plan to get there. AI Slop detection. Interactive — one AskUserQuestion per design choice. |
-| `/plan-devex-review` | **Developer Experience Lead** | Interactive DX review: explores developer personas, benchmarks against competitors' TTHW, designs your magical moment, traces friction points step by step. Three modes: DX EXPANSION, DX POLISH, DX TRIAGE. 20-45 forcing questions. |
-| `/design-consultation` | **Design Partner** | Build a complete design system from scratch. Researches the landscape, proposes creative risks, generates realistic product mockups. |
-| `/review` | **Staff Engineer** | Find the bugs that pass CI but blow up in production. Auto-fixes the obvious ones. Flags completeness gaps. |
-| `/investigate` | **Debugger** | Systematic root-cause debugging. Iron Law: no fixes without investigation. Traces data flow, tests hypotheses, stops after 3 failed fixes. |
-| `/design-review` | **Designer Who Codes** | Same audit as /plan-design-review, then fixes what it finds. Atomic commits, before/after screenshots. |
-| `/devex-review` | **DX Tester** | Live developer experience audit. Actually tests your onboarding: navigates docs, tries the getting started flow, times TTHW, screenshots errors. Compares against `/plan-devex-review` scores — the boomerang that shows if your plan matched reality. |
-| `/design-shotgun` | **Design Explorer** | "Show me options." Generates 4-6 AI mockup variants, opens a comparison board in your browser, collects your feedback, and iterates. Taste memory learns what you like. Repeat until you love something, then hand it to `/design-html`. |
-| `/design-html` | **Design Engineer** | Turn a mockup into production HTML that actually works. Pretext computed layout: text reflows, heights adjust, layouts are dynamic. 30KB, zero deps. Detects React/Svelte/Vue. Smart API routing per design type (landing page vs dashboard vs form). The output is shippable, not a demo. |
-| `/qa` | **QA Lead** | Test your app, find bugs, fix them with atomic commits, re-verify. Auto-generates regression tests for every fix. |
-| `/qa-only` | **QA Reporter** | Same methodology as /qa but report only. Pure bug report without code changes. |
-| `/pair-agent` | **Multi-Agent Coordinator** | Share your browser with any AI agent. One command, one paste, connected. Works with OpenClaw, Hermes, Codex, Cursor, or anything that can curl. Each agent gets its own tab. Auto-launches headed mode so you watch everything. Auto-starts ngrok tunnel for remote agents. Scoped tokens, tab isolation, rate limiting, activity attribution. |
-| `/cso` | **Chief Security Officer** | OWASP Top 10 + STRIDE threat model. Zero-noise: 17 false positive exclusions, 8/10+ confidence gate, independent finding verification. Each finding includes a concrete exploit scenario. |
-| `/ship` | **Release Engineer** | Sync main, run tests, audit coverage, push, open PR. Bootstraps test frameworks if you don't have one. |
-| `/land-and-deploy` | **Release Engineer** | Merge the PR, wait for CI and deploy, verify production health. One command from "approved" to "verified in production." |
-| `/canary` | **SRE** | Post-deploy monitoring loop. Watches for console errors, performance regressions, and page failures. |
-| `/benchmark` | **Performance Engineer** | Baseline page load times, Core Web Vitals, and resource sizes. Compare before/after on every PR. |
-| `/document-release` | **Technical Writer** | Update all project docs to match what you just shipped. Catches stale READMEs automatically. Builds a Diataxis coverage map (reference / how-to / tutorial / explanation) so gaps are visible in the PR body. |
-| `/document-generate` | **Documentation Author** | Generate missing docs from scratch using the Diataxis framework. Researches the codebase first, then writes reference / how-to / tutorial / explanation docs that actually match the code. Invokable standalone or chained from `/document-release` when the coverage map finds gaps. Learn more: [tutorial](docs/tutorial-document-generate.md) • [how-to](docs/howto-document-a-shipped-feature.md) • [why Diataxis](docs/explanation-diataxis-in-gstack.md). |
-| `/retro` | **Eng Manager** | Team-aware weekly retro. Per-person breakdowns, shipping streaks, test health trends, growth opportunities. `/retro global` runs across all your projects and AI tools (Claude Code, Codex, Gemini). |
-| `/browse` | **QA Engineer** | Give the agent eyes. Real Chromium browser, real clicks, real screenshots. ~100ms per command. `/open-gstack-browser` launches GStack Browser with sidebar, anti-bot stealth, and auto model routing. |
-| `/setup-browser-cookies` | **Session Manager** | Import cookies from your real browser (Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages. |
-| `/autoplan` | **Review Pipeline** | One command, fully reviewed plan. Runs CEO → design → eng review automatically with encoded decision principles. Surfaces only taste decisions for your approval. |
-| `/learn` | **Memory** | Manage what gstack learned across sessions. Review, search, prune, and export project-specific patterns, pitfalls, and preferences. Learnings compound across sessions so gstack gets smarter on your codebase over time. |
 
-### Which review should I use?
+| `/office-hours` | **YC Ofis Saatleri** | Buradan başlayın. Kod yazmadan önce ürününüzü yeniden çerçeveleyen altı zorlayıcı soru. Çerçevelemenize karşı çıkar, varsayımları sorgular, uygulama alternatifleri üretir. Tasarım dokümanı, her bir sonraki beceriye katkıda bulunur. |
 
-| Building for... | Plan stage (before code) | Live audit (after shipping) |
+| `/plan-ceo-review` | **CEO / Kurucu** | Sorunu yeniden düşünün. Talebin içinde gizlenmiş 10 yıldızlı ürünü bulun. Dört mod: Genişletme, Seçici Genişletme, Kapsamı Koruma, Azaltma. |
+
+| `/plan-eng-review` | **Mühendislik Müdürü** | Mimariyi, veri akışını, diyagramları, uç durumları ve testleri kilitleyin. Gizli varsayımları açığa çıkarın. |
+
+| `/plan-design-review` | **Kıdemli Tasarımcı** | Her tasarım boyutunu 0-10 arasında derecelendirir, 10'un neye benzediğini açıklar, ardından oraya ulaşmak için planı düzenler. Yapay Zeka Eğim tespiti. Etkileşimli — tasarım seçimi başına bir Kullanıcıya Soru Sor. |
+
+| `/plan-devex-review` | **Geliştirici Deneyimi Lideri** | Etkileşimli DX incelemesi: geliştirici personalarını keşfeder, rakiplerin TTHW'sine karşı kıyaslama yapar, sihirli anınızı tasarlar, sürtünme noktalarını adım adım izler. Üç mod: DX GENİŞLETME, DX PARLATMA, DX TRIAGE. 20-45 zorlayıcı soru. |
+
+| `/tasarım-danışmanlığı` | **Tasarım Ortağı** | Sıfırdan eksiksiz bir tasarım sistemi oluşturun. Ortamı araştırır, yaratıcı riskler önerir, gerçekçi ürün maketleri oluşturur. |
+
+| `/inceleme` | **Kıdemli Mühendis** | CI'dan geçen ancak üretimde patlayan hataları bulun. Açık olanları otomatik olarak düzeltir. Eksiklikleri işaretler. |
+
+| `/araştırma` | **Hata Ayıklayıcı** | Sistematik kök neden hata ayıklaması. Demir Kural: araştırma olmadan düzeltme yok. Veri akışını izler, hipotezleri test eder, 3 başarısız düzeltmeden sonra durur. |
+
+| `/tasarım-incelemesi` | **Kod Yazan Tasarımcı** | `/plan-design-review` ile aynı denetimi yapar, ardından bulduğu hataları düzeltir. Atomik commit'ler, öncesi/sonrası ekran görüntüleri. |
+| `/devex-review` | **DX Test Cihazı** | Canlı geliştirici deneyimi denetimi. Gerçekten de işe alım sürecinizi test eder: dokümanlarda gezinir, başlangıç ​​akışını dener, TTHW'yi (son kullanma tarihi) ölçer, hataların ekran görüntülerini alır. `/plan-devex-review` puanlarıyla karşılaştırır - planınızın gerçekliğe uyup uymadığını gösteren geri bildirim. |
+
+| `/design-shotgun` | **Tasarım Gezgini** | "Bana seçenekleri göster." 4-6 yapay zeka maket varyantı oluşturur, tarayıcınızda bir karşılaştırma panosu açar, geri bildirimlerinizi toplar ve yineler. Beğendiğiniz şeyleri öğrenir. Bir şeyi beğenene kadar tekrarlayın, ardından `/design-html`'e verin. |
+
+| `/design-html` | **Tasarım Mühendisi** | Bir maketi gerçekten çalışan üretim HTML'sine dönüştürün. Ön hesaplamalı düzen: metin yeniden düzenlenir, yükseklikler ayarlanır, düzenler dinamiktir. 30 KB, sıfır bağımlılık. React/Svelte/Vue'yu algılar. Tasarım türüne göre (açılış sayfası, kontrol paneli, form) akıllı API yönlendirmesi. Çıktı gönderilebilir, demo değil. |
+| `/qa` | **QA Lideri** | Uygulamanızı test edin, hataları bulun, atomik commit'lerle düzeltin, tekrar doğrulayın. Her düzeltme için otomatik olarak regresyon testleri oluşturur. |
+| `/qa-only` | **QA Raporlayıcısı** | /qa ile aynı metodoloji, ancak yalnızca raporlama. Kod değişiklikleri olmadan saf hata raporu. |
+
+| `/pair-agent` | **Çoklu Ajan Koordinatörü** | Tarayıcınızı herhangi bir yapay zeka ajanıyla paylaşın. Tek komut, tek yapıştırma, bağlantı kuruldu. OpenClaw, Hermes, Codex, Cursor veya curl çalıştırabilen herhangi bir şeyle çalışır. Her ajan kendi sekmesini alır. Her şeyi izleyebilmeniz için otomatik olarak başlık modu başlatır. Uzak ajanlar için otomatik olarak ngrok tüneli başlatır. Kapsamlı belirteçler, sekme izolasyonu, hız sınırlama, etkinlik atfı. |
+
+| `/cso` | **Baş Güvenlik Sorumlusu** | OWASP Top 10 + STRIDE tehdit modeli. Sıfır gürültü: 17 yanlış pozitif dışlama, 8/10+ güven eşiği, bağımsız bulgu doğrulaması. Her bulgu somut bir istismar senaryosu içerir. |
+
+| `/ship` | **Sürüm Mühendisi** | Ana dosyayı senkronize et, testleri çalıştır, kapsama denetimi yap, gönder, PR aç. Test çerçeveleriniz yoksa test çerçevelerini başlatır. |
+
+| `/land-and-deploy` | **Sürüm Mühendisi** | PR'yi birleştir, CI'yı bekle ve dağıt, üretim sağlığını doğrula. "Onaylandı"dan "üretimde doğrulandı"ya tek komut. |
+
+| `/canary` | **SRE** | Dağıtım sonrası izleme döngüsü. Konsol hatalarını izler, her Performans gerilemeleri ve sayfa hataları. |
+
+| `/benchmark` | **Performans Mühendisi** | Temel sayfa yükleme sürelerini, Temel Web Yaşam Verilerini ve kaynak boyutlarını belirleyin. Her PR'da önce/sonra karşılaştırması yapın. |
+
+| `/document-release` | **Teknik Yazar** | Yeni gönderdiğiniz sürüme uygun olarak tüm proje belgelerini güncelleyin. Eski README dosyalarını otomatik olarak yakalar. PR gövdesinde boşlukların görünür olması için bir Diataxis kapsama haritası (referans / nasıl yapılır / eğitim / açıklama) oluşturur. |
+
+| `/document-generate` | **Belge Yazarı** | Diataxis çerçevesini kullanarak eksik belgeleri sıfırdan oluşturun. Önce kod tabanını araştırır, ardından kodla gerçekten eşleşen referans / nasıl yapılır / eğitim / açıklama belgeleri yazar. Kapsama haritası boşluklar bulduğunda `/document-release`'den bağımsız olarak veya zincirleme olarak çağrılabilir. Daha fazla bilgi edinin: [eğitim](docs/tutorial-document-generate.md) • [nasıl yapılır](docs/howto-document-a-shipped-feature.md) • [Diataxis neden kullanılır](docs/explanation-diataxis-in-gstack.md). |
+
+| `/retro` | **Mühendislik Yöneticisi** | Takım odaklı haftalık retrospektif. Kişi başı dökümler, yayın serileri, test sağlığı trendleri, büyüme fırsatları. `/retro global` tüm projelerinizde ve yapay zeka araçlarınızda (Claude Code, Codex, Gemini) çalışır. |
+
+| `/browse` | **Kalite Güvence Mühendisi** | Ajanlara göz verin. Gerçek Chromium tarayıcı, gerçek tıklamalar, gerçek ekran görüntüleri. Komut başına ~100 ms. `/open-gstack-browser`, kenar çubuğu, bot karşıtı gizlilik ve otomatik model yönlendirme ile GStack Tarayıcıyı başlatır. |
+
+| `/setup-browser-cookies` | **Oturum Yöneticisi** | Gerçek tarayıcınızdan (Chrome, Arc, Brave, Edge) çerezleri başsız oturuma aktarın. Kimlik doğrulamalı sayfaları test edin. |
+
+| `/autoplan` | **İnceleme Hattı** | Tek komutla, tamamen incelenmiş plan. Kodlanmış karar ilkeleriyle CEO → tasarım → mühendislik incelemesini otomatik olarak çalıştırır. Onayınız için yalnızca deneme kararlarını sunar. |
+
+| `/learn` | **Bellek** | gstack'in oturumlar arasında öğrendiklerini yönetin. Projeye özgü kalıpları, tuzakları ve tercihleri ​​inceleyin, arayın, budayın ve dışa aktarın. Öğrenmeler oturumlar arasında birikerek gstack'in zamanla kod tabanınızda daha akıllı hale gelmesini sağlar. |
+
+### Hangi incelemeyi kullanmalıyım?
+
+| Şunlar için geliştirme... | Planlama aşaması (koddan önce) | Canlı denetim (teslimattan sonra) |
 |-----------------|--------------------------|----------------------------|
-| **End users** (UI, web app, mobile) | `/plan-design-review` | `/design-review` |
-| **Developers** (API, CLI, SDK, docs) | `/plan-devex-review` | `/devex-review` |
-| **Architecture** (data flow, perf, tests) | `/plan-eng-review` | `/review` |
-| **All of the above** | `/autoplan` (runs CEO → design → eng → DX, auto-detects which apply) | — |
 
-### Power tools
+| **Son Kullanıcılar** (Kullanıcı Arayüzü, web uygulaması, mobil) | `/plan-design-review` | `/design-review` |
 
-| Skill | What it does |
+| **Geliştiriciler** (API, CLI, SDK, dokümanlar) | `/plan-devex-review` | `/devex-review` |
+
+| **Mimari** (veri akışı, performans, testler) | `/plan-eng-review` | `/review` |
+
+| **Yukarıdakilerin tümü** | `/autoplan` (CEO → tasarım → mühendislik → DX çalıştırır, hangilerinin geçerli olduğunu otomatik olarak algılar) | — |
+
+### Güçlü Araçlar
+
+| Beceri | Ne İşe Yarar |
+
 |-------|-------------|
-| `/codex` | **Second Opinion** — independent code review from OpenAI Codex CLI. Three modes: review (pass/fail gate), adversarial challenge, and open consultation. Cross-model analysis when both `/review` and `/codex` have run. |
-| `/careful` | **Safety Guardrails** — warns before destructive commands (rm -rf, DROP TABLE, force-push). Say "be careful" to activate. Override any warning. |
-| `/freeze` | **Edit Lock** — restrict file edits to one directory. Prevents accidental changes outside scope while debugging. |
-| `/guard` | **Full Safety** — `/careful` + `/freeze` in one command. Maximum safety for prod work. |
-| `/unfreeze` | **Unlock** — remove the `/freeze` boundary. |
-| `/open-gstack-browser` | **GStack Browser** — launch GStack Browser with sidebar, anti-bot stealth, auto model routing (Sonnet for actions, Opus for analysis), one-click cookie import, and Claude Code integration. Clean up pages, take smart screenshots, edit CSS, and pass info back to your terminal. |
-| `/setup-deploy` | **Deploy Configurator** — one-time setup for `/land-and-deploy`. Detects your platform, production URL, and deploy commands. |
-| `/setup-gbrain` | **GBrain Onboarding** — from zero to running gbrain in under 5 minutes. PGLite local, Supabase existing URL, or auto-provision a new Supabase project via Management API. MCP registration for Claude Code + per-repo trust triad (read-write/read-only/deny). [Full guide](USING_GBRAIN_WITH_GSTACK.md). |
-| `/sync-gbrain` | **Keep Brain Current** — re-index this repo's code into gbrain via `gbrain sources add` + `gbrain sync --strategy code`, refresh the `## GBrain Search Guidance` block in CLAUDE.md, and auto-remove guidance when the capability check fails. `--incremental` (default), `--full`, `--dry-run`. Idempotent; safe to re-run. |
-| `/gstack-upgrade` | **Self-Updater** — upgrade gstack to latest. Detects global vs vendored install, syncs both, shows what changed. |
-| `/ios-qa` | **iOS Live-Device QA (v1.43.0.0+)** — drive a real iPhone over USB CoreDevice via an embedded `StateServer` in the app. Read Swift source, codegen typed `@Observable` accessors, run the agent loop. Optional `--tailnet` flag exposes the device to OpenClaw or any HTTP-capable agent on your Tailscale tailnet so remote agents can run iOS QA without ever touching the hardware. Capability-tier allowlist (observe/interact/mutate/restore), per-device session lock, audit log. |
-| `/ios-fix`, `/ios-design-review`, `/ios-clean`, `/ios-sync` | iOS bug-fix loop, designer's-eye HIG audit, debug-bridge cleanup, and accessor resync. See `docs/skills.md`. End-to-end walkthrough: [docs/howto-ios-testing-with-gstack.md](docs/howto-ios-testing-with-gstack.md). |
 
-### New binaries (v0.19)
+| `/codex` | **İkinci Görüş** — OpenAI Codex CLI'dan bağımsız kod incelemesi. Üç mod: inceleme (geçti/kaldı kapısı), düşmanca meydan okuma ve açık danışma. Hem `/review` hem de `/codex` çalıştırıldığında çapraz model analizi. |
 
-Beyond the slash-command skills, gstack ships standalone CLIs for workflows that don't belong inside a session:
+| `/careful` | **Güvenlik Bariyerleri** — yıkıcı komutlardan önce uyarı verir (rm -rf, DROP TABLE, force-push). Etkinleştirmek için "be careful" deyin. Herhangi bir uyarıyı geçersiz kılın. |
 
-| Command | What it does |
+| `/freeze` | **Düzenleme Kilidi** — dosya düzenlemelerini tek bir dizinle sınırlandırır. Hata ayıklama sırasında kapsam dışındaki kazara değişiklikleri önler. |
+
+| `/guard` | **Tam Güvenlik** — `/careful` + `/freeze` tek bir komutta. Üretim çalışmaları için maksimum güvenlik. |
+
+| `/unfreeze` | **Kilidi Aç** — `/freeze` sınırını kaldırın. |
+
+| `/open-gstack-browser` | **GStack Tarayıcı** — kenar çubuğu, bot karşıtı gizlilik, otomatik model yönlendirme (eylemler için Sonnet, analiz için Opus), tek tıklamayla çerez içe aktarma ve Claude Code entegrasyonu ile GStack Tarayıcıyı başlatın. Sayfaları temizleyin, akıllı ekran görüntüleri alın, CSS'yi düzenleyin ve bilgileri terminalinize geri gönderin. |
+
+| `/setup-deploy` | **Dağıtım Yapılandırıcısı** — `/land-and-deploy` için tek seferlik kurulum. Platformunuzu, üretim URL'nizi ve dağıtım komutlarınızı algılar. |
+
+| `/setup-gbrain` | **GBrain Kurulumu** — sıfırdan 5 dakikadan kısa sürede gbrain'i çalıştırmaya başlayın. PGLite yerel, Supabase mevcut URL veya Yönetim API'si aracılığıyla yeni bir Supabase projesi otomatik olarak sağlayın. Claude Code için MCP kaydı + depo başına güven üçlüsü (okuma-yazma/sadece okuma/reddetme). [Tam kılavuz](USING_GBRAIN_WITH_GSTACK.md). |
+
+| `/sync-gbrain` | **Gbrain'i Güncel Tutun** — bu deponun kodunu `gbrain sources add` + `gbrain sync --strategy code` komutlarıyla gbrain'e yeniden indeksleyin, CLAUDE.md dosyasındaki `## GBrain Arama Kılavuzu` bloğunu yenileyin ve yetenek kontrolü başarısız olduğunda kılavuzu otomatik olarak kaldırın. `--incremental` (varsayılan), `--full`, `--dry-run`. Tekrarlanabilir; tekrar çalıştırmak güvenlidir. |
+
+| `/gstack-upgrade` | **Kendi Kendini Güncelleyen** — gstack'i en son sürüme yükseltin. Genel ve satıcıya özel kurulumu algılar, ikisini de senkronize eder, nelerin değiştiğini gösterir. |
+
+| `/ios-qa` | **iOS Canlı Cihaz QA (v1.43.0.0+)** — Uygulamada yerleşik bir `StateServer` aracılığıyla USB CoreDevice üzerinden gerçek bir iPhone'u çalıştırın. Swift kaynak kodunu okuyun, kod üretimiyle `@Observable` erişimcilerini oluşturun, ajan döngüsünü çalıştırın. İsteğe bağlı `--tailnet` bayrağı, cihazı OpenClaw'a veya Tailscale kuyruk ağınızdaki herhangi bir HTTP özellikli ajana gösterir, böylece uzak ajanlar donanıma hiç dokunmadan iOS QA çalıştırabilir. Yetenek katmanı izin listesi (gözlemle/etkileşim kur/değiştir/geri yükle) ), cihaz başına oturum kilidi, denetim günlüğü. |
+
+| `/ios-fix`, `/ios-design-review`, `/ios-clean`, `/ios-sync` | iOS hata düzeltme döngüsü, tasarımcı gözüyle HIG denetimi, hata ayıklama köprüsü temizliği ve erişimci yeniden senkronizasyonu. Bkz. `docs/skills.md`. Uçtan uca kılavuz: [docs/howto-ios-testing-with-gstack.md](docs/howto-ios-testing-with-gstack.md). |
+
+### Yeni ikili dosyalar (v0.19)
+
+Eğik çizgi komut becerilerinin ötesinde, gstack, bir oturumun içinde yer almayan iş akışları için bağımsız CLI'lar sunar:
+
+| Komut | Ne yapar |
+
 |---------|-------------|
-| `gstack-model-benchmark` | **Cross-model benchmark** — run the same prompt through Claude, GPT (via Codex CLI), and Gemini; compare latency, tokens, cost, and (optionally) LLM-judge quality score. Auth detected per provider, unavailable providers skip cleanly. Output as table, JSON, or markdown. `--dry-run` validates flags + auth without spending API calls. |
-| `gstack-taste-update` | **Design taste learning** — writes approvals and rejections from `/design-shotgun` into a persistent per-project taste profile. Decays 5%/week. Feeds back into future variant generation so the system learns what you actually pick. |
-| `gstack-ios-qa-daemon` | **iOS QA daemon** — Mac-side broker between an agent and a connected iPhone over USB CoreDevice. Loopback by default; `--tailnet` opens a Tailscale-facing listener with identity-gated capability tiers. Single-instance via flock on `~/.gstack/ios-qa-daemon.pid`. See [docs/howto-ios-testing-with-gstack.md](docs/howto-ios-testing-with-gstack.md). |
-| `gstack-ios-qa-mint` | **iOS allowlist manager** — owner-grant CLI for the tailnet allowlist. `grant`/`revoke`/`list` against `~/.gstack/ios-qa-allowlist.json` (mode 0600). Remote agents never auto-allowlist; this is the explicit-intent path. |
 
-### Continuous checkpoint mode (opt-in, local by default)
+| `gstack-model-benchmark` | **Modeller Arası Karşılaştırma** — Aynı komut istemini Claude, GPT (Codex CLI aracılığıyla) ve Gemini üzerinden çalıştırın; gecikmeyi, belirteçleri, maliyeti ve (isteğe bağlı olarak) LLM-judge kalite puanını karşılaştırın. Kimlik doğrulama sağlayıcı başına algılanır, kullanılamayan sağlayıcılar sorunsuz bir şekilde atlanır. Çıktı tablo, JSON veya markdown olarak verilir. `--dry-run` API çağrıları harcamadan bayrakları + kimlik doğrulamayı doğrular. |
 
-Set `gstack-config set checkpoint_mode continuous` and skills auto-commit your work as you go with a `WIP:` prefix plus a structured `[gstack-context]` body (decisions, remaining work, failed approaches). Survives crashes and context switches. `/context-restore` reads those commits to reconstruct session state. `/ship` filter-squashes WIP commits before the PR (preserving non-WIP commits) so bisect stays clean. Push is opt-in via `checkpoint_push=true` — default is local-only so you don't trigger CI on every WIP commit.
+| `gstack-taste-update` | **Tasarım zevki öğrenimi** — `/design-shotgun`'dan gelen onayları ve retleri kalıcı bir proje zevki profiline yazar. Haftada %5 azalır. Gelecekteki varyant üretimine geri besleme yapar, böylece sistem aslında ne seçtiğinizi öğrenir. |
 
-### Domain skills + raw CDP escape hatch
+| `gstack-ios-qa-daemon` | **iOS QA arka plan programı** — Bir aracı ile USB CoreDevice üzerinden bağlı bir iPhone arasında Mac tarafı aracı. Varsayılan olarak geri döngü; `--tailnet`, kimlik doğrulamalı yetenek katmanlarına sahip Tailscale'e yönelik bir dinleyici açar. `~/.gstack/ios-qa-daemon.pid` üzerinde flock aracılığıyla tek örnek. [docs/howto-ios-testing-with-gstack.md](docs/howto-ios-testing-with-gstack.md) adresine bakın. |
 
-Two new browser primitives compound the gstack agent over time:
+| `gstack-ios-qa-mint` | **iOS izin listesi yöneticisi** — tailnet izin listesi için sahip-izin verme CLI'sı. `~/.gstack/ios-qa-allowlist.json`'a karşı `grant`/`revoke`/`list` (mod 0600). Uzak aracılar asla otomatik olarak izin listesine ekleme yapmaz; bu, açık niyet yoludur. |
 
-- **`$B domain-skill save`** — agent saves a per-site note (e.g., "LinkedIn's Apply button lives in an iframe") that fires automatically next time it visits that hostname. Quarantined → active after 3 successful uses → optional cross-project promotion via `$B domain-skill promote-to-global`. Storage lives alongside `/learn`'s per-project learnings file. Full reference: **[docs/domain-skills.md](docs/domain-skills.md)**.
-- **`$B cdp <Domain.method>`** — raw Chrome DevTools Protocol escape hatch for the rare case curated commands miss. Deny-default: methods must be explicitly added to `browse/src/cdp-allowlist.ts` with a one-line justification. Two-tier mutex serializes browser-scoped CDP calls against per-tab work. Output for data-exfil methods is wrapped in the UNTRUSTED envelope.
+### Sürekli kontrol noktası modu (isteğe bağlı, varsayılan olarak yerel)
 
-> Want raw CDP with no rails, no allowlist, no daemon — just thin transport from agent to Chrome? [browser-use/browser-harness-js](https://github.com/browser-use/browser-harness-js) is a different philosophy (agent-authored helpers vs gstack's curated commands) and a good fit if you don't want gstack's security stack. The two can coexist: gstack's `$B cdp` and harness can both attach to the same Chrome via Playwright's `newCDPSession`.
+`gstack-config set checkpoint_mode continuous` komutunu ayarlayın ve beceriler, `WIP:` öneki ve yapılandırılmış bir `[gstack-context]` gövdesi (kararlar, kalan işler, başarısız yaklaşımlar) ile birlikte çalışmanızı otomatik olarak kaydeder. Çökmelere ve bağlam değişikliklerine karşı dayanıklıdır. `/context-restore`, oturum durumunu yeniden oluşturmak için bu commit'leri okur. `/ship`, PR'dan önce WIP commit'lerini filtreleyerek sıkıştırır (WIP olmayan commit'leri koruyarak), böylece bisect temiz kalır. Push, `checkpoint_push=true` ile isteğe bağlıdır — varsayılan olarak yalnızca yereldir, böylece her WIP commit'inde CI'yi tetiklemezsiniz.
 
-**[Deep dives with examples and philosophy for every skill →](docs/skills.md)**
+### Alan Becerileri + Ham CDP Kaçış Yolu
 
-### Karpathy's four failure modes? Already covered.
+İki yeni tarayıcı temel öğesi, gstack aracısını zaman içinde birleştirir:
 
-Andrej Karpathy's [AI coding rules](https://github.com/forrestchang/andrej-karpathy-skills) (17K stars) nail four failure modes: wrong assumptions, overcomplexity, orthogonal edits, imperative over declarative. gstack's workflow skills enforce all four. `/office-hours` forces assumptions into the open before code is written. The Confusion Protocol stops Claude from guessing on architectural decisions. `/review` catches unnecessary complexity and drive-by edits. `/ship` transforms tasks into verifiable goals with test-first execution. If you already use Karpathy-style CLAUDE.md rules, gstack is the workflow enforcement layer that makes them stick across entire sprints, not just single prompts.
+- **`$B domain-skill save`** — aracı, bir sonraki sefer o ana bilgisayar adını ziyaret ettiğinde otomatik olarak tetiklenen site başına bir not kaydeder (örneğin, "LinkedIn'in Başvur düğmesi bir iframe içinde yer alıyor"). Karantinaya alınır → 3 başarılı kullanımdan sonra etkin hale gelir → `$B domain-skill promote-to-global` aracılığıyla isteğe bağlı olarak projeler arası yükseltme. Depolama, `/learn`'ün proje başına öğrenme dosyasıyla birlikte bulunur. Tam referans: **[docs/domain-skills.md](docs/domain-skills.md)**.
 
-## Parallel sprints
+- **`$B cdp <Domain.method>`** — derlenmiş komutların gözden kaçırdığı nadir durumlar için ham Chrome Geliştirici Araçları Protokolü kaçış yolu. Varsayılan olarak reddetme: Metotlar, tek satırlık bir gerekçeyle `browse/src/cdp-allowlist.ts` dosyasına açıkça eklenmelidir. İki katmanlı mutex, tarayıcı kapsamlı CDP çağrılarını sekme başına yapılan çalışmalara karşı serileştirir. Veri sızdırma metotlarının çıktısı, GÜVENİLMEYEN zarfına sarılır.
 
-gstack works well with one sprint. It gets interesting with ten running at once.
+> Rails, allowlist, daemon olmadan, sadece agent'tan Chrome'a ​​ince bir taşıma ile ham CDP mi istiyorsunuz? [browser-use/browser-harness-js](https://github.com/browser-use/browser-harness-js) farklı bir felsefeye (agent tarafından yazılan yardımcılar vs. gstack'in derlenmiş komutları) sahiptir ve gstack'in güvenlik yığınını istemiyorsanız iyi bir seçenektir. İkisi birlikte var olabilir: gstack'in `$B cdp` ve harness, Playwright'ın `newCDPSession`'ı aracılığıyla aynı Chrome'a ​​bağlanabilir.
 
-**Design is at the heart.** `/design-consultation` builds your design system from scratch, researches what's out there, proposes creative risks, and writes `DESIGN.md`. But the real magic is the shotgun-to-HTML pipeline.
+**[Her beceri için örnekler ve felsefe içeren derinlemesine incelemeler →](docs/skills.md)**
 
-**`/design-shotgun` is how you explore.** You describe what you want. It generates 4-6 AI mockup variants using GPT Image. Then it opens a comparison board in your browser with all variants side by side. You pick favorites, leave feedback ("more whitespace", "bolder headline", "lose the gradient"), and it generates a new round. Repeat until you love something. Taste memory kicks in after a few rounds so it starts biasing toward what you actually like. No more describing your vision in words and hoping the AI gets it. You see options, pick the good ones, and iterate visually.
+### Karpathy'nin dört hata modu? Zaten ele alındı.
 
-**`/design-html` makes it real.** Take that approved mockup (from `/design-shotgun`, a CEO plan, a design review, or just a description) and turn it into production-quality HTML/CSS. Not the kind of AI HTML that looks fine at one viewport width and breaks everywhere else. This uses Pretext for computed text layout: text actually reflows on resize, heights adjust to content, layouts are dynamic. 30KB overhead, zero dependencies. It detects your framework (React, Svelte, Vue) and outputs the right format. Smart API routing picks different Pretext patterns depending on whether it's a landing page, dashboard, form, or card layout. The output is something you'd actually ship, not a demo.
+Andrej Karpathy'nin [Yapay Zeka kodlama kuralları](https://github.com/forrestchang/andrej-karpathy-skills) (17K yıldız) dört hata modunu ele alıyor: yanlış varsayımlar, aşırı karmaşıklık, ortogonal düzenlemeler, bildirimsel yerine zorunlu yaklaşım. gstack'in iş akışı becerileri dördünü de uyguluyor. `/office-hours` kod yazılmadan önce varsayımları açıkça ortaya koyuyor. Karışıklık Protokolü, Claude'un mimari kararlar konusunda tahmin yürütmesini engelliyor. `/review` gereksiz karmaşıklığı ve aceleyle yapılan düzenlemeleri yakalıyor. `/ship` görevleri, test öncelikli yürütme ile doğrulanabilir hedeflere dönüştürüyor. Eğer zaten Karpathy tarzı CLAUDE.md kuralları kullanıyorsanız, gstack, bu kuralların yalnızca tek bir komut için değil, tüm sprintler boyunca geçerli olmasını sağlayan iş akışı uygulama katmanıdır.
 
-**`/qa` was a massive unlock.** It let me go from 6 to 12 parallel workers. Claude Code saying *"I SEE THE ISSUE"* and then actually fixing it, generating a regression test, and verifying the fix — that changed how I work. The agent has eyes now.
+## Paralel Sprintler
 
-**Smart review routing.** Just like at a well-run startup: CEO doesn't have to look at infra bug fixes, design review isn't needed for backend changes. gstack tracks what reviews are run, figures out what's appropriate, and just does the smart thing. The Review Readiness Dashboard tells you where you stand before you ship.
+gstack tek bir sprint ile iyi çalışır. On sprintin aynı anda çalışmasıyla işler ilginçleşir.
 
-**Test everything.** `/ship` bootstraps test frameworks from scratch if your project doesn't have one. Every `/ship` run produces a coverage audit. Every `/qa` bug fix generates a regression test. 100% test coverage is the goal — tests make vibe coding safe instead of yolo coding.
+**Tasarım her şeyin merkezindedir.** `/design-consultation`, tasarım sisteminizi sıfırdan oluşturur, mevcut seçenekleri araştırır, yaratıcı riskler önerir ve `DESIGN.md` dosyasını yazar. Ancak asıl sihir, shotgun'dan HTML'ye dönüştürme işlemidir.
 
-**`/document-release` is the engineer you never had.** It reads every doc file in your project, cross-references the diff, and updates everything that drifted. README, ARCHITECTURE, CONTRIBUTING, CLAUDE.md, TODOS — all kept current automatically. And now `/ship` auto-invokes it — docs stay current without an extra command.
+**`/design-shotgun`, keşfetme yönteminizdir.** Ne istediğinizi tanımlarsınız. GPT Image kullanarak 4-6 yapay zeka maket varyantı oluşturur. Ardından bir karşılaştırma kutusu açar. Tarayıcınızda tüm varyantları yan yana görüntüleyin. Favorilerinizi seçin, geri bildirim bırakın ("daha fazla boşluk", "daha kalın başlık", "gradyanı kaldır") ve yeni bir tur oluşturulur. Bir şeyi beğenene kadar tekrarlayın. Birkaç turdan sonra tat hafızası devreye girer ve gerçekten beğendiğiniz şeye doğru eğilim göstermeye başlar. Artık vizyonunuzu kelimelerle tanımlayıp yapay zekanın anlamasını ummaya gerek yok. Seçenekleri görürsünüz, iyi olanları seçersiniz ve görsel olarak yinelersiniz.
 
-**Real browser mode.** `/open-gstack-browser` launches GStack Browser, an AI-controlled Chromium with anti-bot stealth, custom branding, and the sidebar extension baked in. Sites like Google and NYTimes work without captchas. The menu bar says "GStack Browser" instead of "Chrome for Testing." Your regular Chrome stays untouched. All existing browse commands work unchanged. `$B disconnect` returns to headless. The browser stays alive as long as the window is open... no idle timeout killing it while you're working.
+**`/design-html` bunu gerçeğe dönüştürüyor.** Onaylanmış maketi (`/design-shotgun`'dan, bir CEO planından, bir tasarım incelemesinden veya sadece bir açıklamadan) alın ve üretim kalitesinde HTML/CSS'ye dönüştürün. Bir görüntüleme alanı genişliğinde iyi görünen ve her yerde bozulan yapay zeka HTML'si değil. Bu, hesaplanmış metin düzeni için Pretext kullanır: metin yeniden boyutlandırıldığında gerçekten yeniden akar, yükseklikler içeriğe göre ayarlanır, düzenler dinamiktir. 30 KB ek yük, sıfır bağımlılık. Çerçeveyi (React, Svelte, Vue) algılar ve doğru formatı çıkarır. Akıllı API yönlendirmesi, bir açılış sayfası, kontrol paneli, form veya kart düzeni olup olmadığına bağlı olarak farklı Pretext kalıpları seçer. Çıktı, bir demo değil, gerçekten göndereceğiniz bir şeydir.
 
-**Sidebar agent — your AI browser assistant.** Type natural language in the Chrome side panel and a child Claude instance executes it. "Navigate to the settings page and screenshot it." "Fill out this form with test data." "Go through every item in this list and extract the prices." The sidebar auto-routes to the right model: Sonnet for fast actions (click, navigate, screenshot) and Opus for reading and analysis. Each task gets up to 5 minutes. The sidebar agent runs in an isolated session, so it won't interfere with your main Claude Code window. One-click cookie import right from the sidebar footer.
+**`/qa` büyük bir dönüm noktası oldu.** 6'dan 12'ye paralel çalışan sayısına ulaşmamı sağladı. Claude Code'un *"SORUNU GÖRÜYORUM"* demesi ve ardından gerçekten düzeltmesi, bir regresyon testi oluşturması ve düzeltmeyi doğrulaması, çalışma şeklimi değiştirdi. Artık ajanın gözleri var.
 
-**Personal automation.** The sidebar agent isn't just for dev workflows. Example: "Browse my kid's school parent portal and add all the other parents' names, phone numbers, and photos to my Google Contacts." Two ways to get authenticated: (1) log in once in the headed browser, your session persists, or (2) click the "cookies" button in the sidebar footer to import cookies from your real Chrome. Once authenticated, Claude navigates the directory, extracts the data, and creates the contacts.
+**Akıllı inceleme yönlendirmesi.** Tıpkı iyi yönetilen bir girişimde olduğu gibi: CEO'nun altyapı hata düzeltmelerine bakmasına gerek yok, arka uç değişiklikleri için tasarım incelemesi gerekmiyor. gstack, hangi incelemelerin yapıldığını takip eder, uygun olanı bulur ve akıllıca olanı yapar. İnceleme Hazırlık Paneli, göndermeden önce nerede olduğunuzu gösterir.
 
-**Prompt injection defense.** Hostile web pages try to hijack your sidebar agent. gstack ships a layered defense: a 22MB ML classifier bundled with the browser scans every page and tool output locally, a Claude Haiku transcript check votes on the full conversation shape, a random canary token in the system prompt catches session exfil attempts across text, tool args, URLs, and file writes, and a verdict combiner requires two classifiers to agree before blocking (prevents single-model false positives on Stack Overflow-style instruction pages). A shield icon in the sidebar header shows status (green/amber/red). Opt in to a 721MB DeBERTa-v3 ensemble via `GSTACK_SECURITY_ENSEMBLE=deberta` for 2-of-3 agreement. Emergency kill switch: `GSTACK_SECURITY_OFF=1`. See [ARCHITECTURE.md](ARCHITECTURE.md#prompt-injection-defense-sidebar-agent) for the full stack.
+**Her şeyi test edin.** `/ship`, projenizde yoksa sıfırdan test çerçeveleri oluşturur. Her `/ship` çalıştırması bir kapsama denetimi üretir. Her `/qa` hata düzeltmesi bir regresyon testi oluşturur. %100 test kapsamı hedeftir — testler, riskli kodlama yerine güvenli bir şekilde kod yazmayı sağlar.
 
-**Browser handoff when the AI gets stuck.** Hit a CAPTCHA, auth wall, or MFA prompt? `$B handoff` opens a visible Chrome at the exact same page with all your cookies and tabs intact. Solve the problem, tell Claude you're done, `$B resume` picks up right where it left off. The agent even suggests it automatically after 3 consecutive failures.
+**`/document-release`, hiç sahip olmadığınız mühendisinizdir.** Projenizdeki her belge dosyasını okur, farkı çapraz referanslar ve sapma gösteren her şeyi günceller. README, ARCHITECTURE, CONTRIBUTING, CLAUDE.md, TODOS — hepsi otomatik olarak güncel tutulur. Ve şimdi `/ship` bunu otomatik olarak çağırır — belgeler ekstra bir komut olmadan güncel kalır.
 
-**`/pair-agent` is cross-agent coordination.** You're in Claude Code. You also have OpenClaw running. Or Hermes. Or Codex. You want them both looking at the same website. Type `/pair-agent`, pick your agent, and a GStack Browser window opens so you can watch. The skill prints a block of instructions. Paste that block into the other agent's chat. It exchanges a one-time setup key for a session token, creates its own tab, and starts browsing. You see both agents working in the same browser, each in their own tab, neither able to interfere with the other. If ngrok is installed, the tunnel starts automatically so the other agent can be on a completely different machine. Same-machine agents get a zero-friction shortcut that writes credentials directly. This is the first time AI agents from different vendors can coordinate through a shared browser with real security: scoped tokens, tab isolation, rate limiting, domain restrictions, and activity attribution.
+**Gerçek tarayıcı modu.** `/open-gstack-browser`, yapay zeka kontrollü, bot karşıtı gizlilik, özel marka ve yerleşik kenar çubuğu uzantısına sahip bir Chromium olan GStack Tarayıcısını başlatır. Google ve NYTimes gibi siteler captcha olmadan çalışır. Menü çubuğunda "Test için Chrome" yerine "GStack Tarayıcı" yazıyor. Normal Chrome'unuz dokunulmadan kalıyor. Mevcut tüm tarama komutları değişmeden çalışıyor. `$B disconnect` başsız moda geri dönüyor. Tarayıcı, pencere açık olduğu sürece aktif kalıyor... çalışırken onu öldüren bir boşta kalma zaman aşımı yok.
 
-**Multi-AI second opinion.** `/codex` gets an independent review from OpenAI's Codex CLI — a completely different AI looking at the same diff. Three modes: code review with a pass/fail gate, adversarial challenge that actively tries to break your code, and open consultation with session continuity. When both `/review` (Claude) and `/codex` (OpenAI) have reviewed the same branch, you get a cross-model analysis showing which findings overlap and which are unique to each.
+**Yan panel ajanı — yapay zeka tarayıcı asistanınız.** Chrome yan panelinde doğal dil yazın ve bir alt Claude örneği bunu yürütür. "Ayarlar sayfasına gidin ve ekran görüntüsünü alın." "Bu formu test verileriyle doldurun." "Bu listedeki her öğeyi inceleyin ve fiyatları çıkarın." Yan panel otomatik olarak doğru modele yönlendirir: Hızlı işlemler için Sonnet (tıklama, gezinme, ekran görüntüsü alma) ve okuma ve analiz için Opus. Her görev için 5 dakikaya kadar süre verilir. Yan panel ajanı izole bir oturumda çalışır, bu nedenle ana Claude Code pencerenize müdahale etmez. Yan panel altbilgisinden tek tıklamayla çerez içe aktarma.
 
-**Safety guardrails on demand.** Say "be careful" and `/careful` warns before any destructive command — rm -rf, DROP TABLE, force-push, git reset --hard. `/freeze` locks edits to one directory while debugging so Claude can't accidentally "fix" unrelated code. `/guard` activates both. `/investigate` auto-freezes to the module being investigated.
+**Kişisel otomasyon.** Yan panel ajanı sadece geliştirme iş akışları için değildir. Örnek: "Çocuğumun okulunun veli portalına göz atın ve diğer tüm velilerin adlarını, telefon numaralarını ve fotoğraflarını Google Kişilerime ekleyin." Kimlik doğrulama için iki yol: (1) başlıklandırılmış tarayıcıda bir kez oturum açın, oturumunuz devam eder veya (2) gerçek Chrome'unuzdan çerezleri içe aktarmak için kenar çubuğu altbilgisindeki "çerezler" düğmesine tıklayın. Kimlik doğrulama tamamlandıktan sonra, Claude dizini gezer, verileri çıkarır ve kişileri oluşturur.
 
-**Proactive skill suggestions.** gstack notices what stage you're in — brainstorming, reviewing, debugging, testing — and suggests the right skill. Don't like it? Say "stop suggesting" and it remembers across sessions.
+**İstem enjeksiyon savunması.** Düşman web sayfaları kenar çubuğu aracınızı ele geçirmeye çalışır. gstack katmanlı bir savunma sunar: tarayıcıyla birlikte gelen 22 MB'lık bir ML sınıflandırıcı, her sayfayı ve araç çıktısını yerel olarak tarar, bir Claude Haiku transkript kontrolü tüm konuşma şekli üzerinde oy kullanır, sistem isteminde rastgele bir canary belirteci, metin, araç argümanları, URL'ler ve dosya yazmaları genelinde oturum sızdırma girişimlerini yakalar ve bir karar birleştirici, engellemeden önce iki sınıflandırıcının aynı fikirde olmasını gerektirir (Stack Overflow tarzı talimat sayfalarında tek model yanlış pozitiflerini önler). Kenar çubuğu başlığındaki kalkan simgesi durumu gösterir (yeşil/sarı/kırmızı). 2/3 anlaşması için `GSTACK_SECURITY_ENSEMBLE=deberta` aracılığıyla 721MB DeBERTa-v3 kümesine katılın. Acil durum kapatma anahtarı: `GSTACK_SECURITY_OFF=1`. Tam yığın için [ARCHITECTURE.md](ARCHITECTURE.md#prompt-injection-defense-sidebar-agent) dosyasına bakın.
 
-## 10-15 parallel sprints
+**Yapay zeka takıldığında tarayıcı geçişi.** Bir CAPTCHA, kimlik doğrulama duvarı veya MFA istemiyle mi karşılaştınız? `$B handoff`, tüm çerezleriniz ve sekmeleriniz bozulmadan aynı sayfada görünür bir Chrome açar. Sorunu çözün, tel Claude, işin bitti, `$B resume` kaldığı yerden devam ediyor. Hatta ajan, art arda 3 başarısız denemeden sonra otomatik olarak bunu öneriyor.
 
-gstack is powerful with one sprint. It is transformative with ten running at once.
+**`/pair-agent` ajanlar arası koordinasyon sağlar.** Claude Code'dasınız. Ayrıca OpenClaw, Hermes veya Codex de çalışıyor. İkisinin de aynı web sitesine bakmasını istiyorsunuz. `/pair-agent` yazın, ajanınızı seçin ve bir GStack Tarayıcı penceresi açılır, böylece izleyebilirsiniz. Beceri bir talimat bloğu yazdırır. Bu bloğu diğer ajanın sohbetine yapıştırın. Tek kullanımlık bir kurulum anahtarını bir oturum belirteciyle değiştirir, kendi sekmesini oluşturur ve taramaya başlar. Her iki ajanın da aynı tarayıcıda, her birinin kendi sekmesinde çalıştığını, hiçbirinin diğerine müdahale edemediğini görürsünüz. ngrok yüklüyse, tünel otomatik olarak başlar, böylece diğer ajan tamamen farklı bir makinede olabilir. Aynı makinedeki ajanlar, kimlik bilgilerini doğrudan yazan sıfır sürtünmeli bir kısayol elde eder. Bu, farklı tedarikçilerden gelen yapay zeka ajanlarının gerçek güvenlik önlemleriyle (kapsamlı belirteçler, sekme izolasyonu, hız sınırlaması, alan adı kısıtlamaları ve etkinlik atfı) ortak bir tarayıcı üzerinden koordinasyon sağlayabildiği ilk seferdir.
 
-[Conductor](https://conductor.build) runs multiple Claude Code sessions in parallel — each in its own isolated workspace. One session running `/office-hours` on a new idea, another doing `/review` on a PR, a third implementing a feature, a fourth running `/qa` on staging, and six more on other branches. All at the same time. I regularly run 10-15 parallel sprints — that's the practical max right now.
+**Çoklu Yapay Zeka İkinci Görüşü.** `/codex`, OpenAI'nin Codex CLI'sinden bağımsız bir inceleme alır; aynı farkı inceleyen tamamen farklı bir yapay zeka. Üç mod: geçme/kalma kapısı ile kod incelemesi, kodunuzu aktif olarak bozmaya çalışan düşmanca meydan okuma ve oturum sürekliliği ile açık danışma. Hem `/review` (Claude) hem de `/codex` (OpenAI) aynı dalı incelediğinde, hangi bulguların örtüştüğünü ve hangilerinin her birine özgü olduğunu gösteren bir modeller arası analiz elde edersiniz.
 
-The sprint structure is what makes parallelism work. Without a process, ten agents is ten sources of chaos. With a process — think, plan, build, review, test, ship — each agent knows exactly what to do and when to stop. You manage them the way a CEO manages a team: check in on the decisions that matter, let the rest run.
+**İhtiyaca göre güvenlik önlemleri.** "Dikkatli olun" deyin ve `/careful` herhangi bir yıkıcı komuttan önce uyarı verir — rm -rf, DROP TABLE, force-push, git reset --hard. `/freeze` komutu, hata ayıklama sırasında Claude'un yanlışlıkla ilgisiz kodları "düzeltmesini" önlemek için düzenlemeleri tek bir dizine kilitler. `/guard` komutu her ikisini de etkinleştirir. `/investigate` komutu ise incelenen modüle otomatik olarak kilitler.
 
-### Voice input (AquaVoice, Whisper, etc.)
+**Proaktif beceri önerileri.** gstack, hangi aşamada olduğunuzu (beyin fırtınası, inceleme, hata ayıklama, test etme) fark eder ve doğru beceriyi önerir. Beğenmediniz mi? "Önermeyi durdur" deyin ve oturumlar arasında hatırlar.
 
-gstack skills have voice-friendly trigger phrases. Say what you want naturally —
-"run a security check", "test the website", "do an engineering review" — and the
-right skill activates. You don't need to remember slash command names or acronyms.
+## 10-15 paralel sprint
 
-## Uninstall
+gstack, tek bir sprint ile güçlüdür. On sprinti aynı anda çalıştırarak dönüştürücü bir etki yaratır.
 
-### Option 1: Run the uninstall script
+[Conductor](https://conductor.build), her biri kendi izole çalışma alanında olmak üzere birden fazla Claude Code oturumunu paralel olarak çalıştırır. Bir oturumda yeni bir fikir üzerinde `/office-hours` çalıştırılıyor, bir diğerinde bir PR üzerinde `/review` yapılıyor, üçüncüsünde bir özellik uygulanıyor, dördüncüsünde test ortamında `/qa` çalıştırılıyor ve altı oturumda daha farklı dallar üzerinde çalışılıyor. Hepsi aynı anda. Düzenli olarak 10-15 paralel sprint çalıştırıyorum - şu anda pratik maksimum bu.
 
-If gstack is installed on your machine:
+Sprint yapısı, paralelliği mümkün kılan şeydir. Bir süreç olmadan, on ajan on kaos kaynağıdır. Bir süreçle - düşün, planla, oluştur, incele, test et, gönder - her ajan tam olarak ne yapacağını ve ne zaman duracağını bilir. Onları bir CEO'nun bir ekibi yönettiği gibi yönetirsiniz: önemli kararları kontrol edin, gerisini kendi haline bırakın.
+
+### Sesli giriş (AquaVoice, Whisper, vb.)
+
+gstack becerilerinin sese uygun tetikleyici ifadeleri vardır. İstediğinizi doğal bir şekilde söyleyin -
+"güvenlik kontrolü yap", "web sitesini test et", "mühendislik incelemesi yap" - ve
+doğru beceri etkinleşir. Eğik çizgi komut adlarını veya kısaltmaları hatırlamanıza gerek yok.
+
+## Kaldırma
+
+### Seçenek 1: Kaldırma betiğini çalıştırın
+
+Eğer gstack makinenizde kuruluysa:
 
 ```bash
 ~/.claude/skills/gstack/bin/gstack-uninstall
 ```
 
-This handles skills, symlinks, global state (`~/.gstack/`), project-local state, browse daemons, and temp files. Use `--keep-state` to preserve config and analytics. Use `--force` to skip confirmation.
+Bu, becerileri, sembolik bağlantıları, genel durumu (`~/.gstack/`), projeye özgü durumu, tarama servislerini ve geçici dosyaları yönetir. Yapılandırmayı ve analizleri korumak için `--keep-state` kullanın. Onaylamayı atlamak için `--force` kullanın.
 
-### Option 2: Manual removal (no local repo)
+### Seçenek 2: Manuel kaldırma (yerel depo yok)
 
-If you don't have the repo cloned (e.g. you installed via a Claude Code paste and later deleted the clone):
+Eğer depoyu klonlamadıysanız (örneğin, Claude Code kopyası aracılığıyla kurduysanız ve daha sonra klonu sildiyseniz):
 
 ```bash
-# 1. Stop browse daemons
+# 1. Browse servislerini durdurun
 pkill -f "gstack.*browse" 2>/dev/null || true
 
-# 2. Remove per-skill directories whose SKILL.md points into gstack/
+# 2. SKILL.md dosyası gstack/ dizinine işaret eden beceri başına dizinleri kaldırın
 find ~/.claude/skills -mindepth 1 -maxdepth 1 -type d ! -name gstack 2>/dev/null |
-while IFS= read -r dir; do
-  link="$dir/SKILL.md"
-  [ -L "$link" ] || continue
-  target=$(readlink "$link" 2>/dev/null) || continue
-  case "$target" in
-    gstack/*|*/gstack/*)
-      rm -f "$link"
-      rmdir "$dir" 2>/dev/null || true
-      ;;
-  esac
-done
 
-# 3. Remove gstack
+while IFS= read -r dir; do
+
+link="$dir/SKILL.md"
+
+[ -L "$link" ] || continue
+target=$(readlink "$link" 2>/dev/null) || devam et
+durum "$target" içinde
+
+gstack/*|*/gstack/*)
+
+rm -f "$link"
+rmdir "$dir" 2>/dev/null || true
+
+;;
+esac
+tamamlandı
+
+# 3. gstack'i kaldır
 rm -rf ~/.claude/skills/gstack
 
-# 4. Remove global state
+# 4. Genel durumu kaldır
 rm -rf ~/.gstack
 
-# 5. Remove integrations (skip any you never installed)
+# 5. Entegrasyonları kaldır (hiç kurmadığınız entegrasyonları atlayın)
 rm -rf ~/.codex/skills/gstack* 2>/dev/null
 rm -rf ~/.factory/skills/gstack* 2>/dev/null
 rm -rf ~/.kiro/skills/gstack* 2>/dev/null
 rm -rf ~/.openclaw/skills/gstack* 2>/dev/null
 
-# 6. Remove temp files
+# 6. Geçici dosyaları kaldır
 rm -f /tmp/gstack-* 2>/dev/null
 
-# 7. Per-project cleanup (run from each project root)
-rm -rf .gstack .gstack-worktrees .claude/skills/gstack 2>/dev/null
-rm -rf .agents/skills/gstack* .factory/skills/gstack* 2>/dev/null
+# 7. Proje bazında temizlik (her proje kökünden çalıştırın)
+rm -rf .gstack `.gstack-worktrees .claude/skills/gstack 2>/dev/null`
+`rm -rf .agents/skills/gstack* .factory/skills/gstack* 2>/dev/null`
 ```
 
-### Clean up CLAUDE.md
+### CLAUDE.md dosyasını temizleme
 
-The uninstall script does not edit CLAUDE.md. In each project where gstack was added, remove the `## gstack` and `## Skill routing` sections.
+Kaldırma betiği CLAUDE.md dosyasını düzenlemez. Gstack'in eklendiği her projede, `## gstack` ve `## Ski` satırlarını kaldırın.
+`routing` bölümleri.
 
 ### Playwright
 
-`~/Library/Caches/ms-playwright/` (macOS) is left in place because other tools may share it. Remove it if nothing else needs it.
+`~/Library/Caches/ms-playwright/` (macOS) diğer araçlar tarafından paylaşılabileceği için yerinde bırakılmıştır. Başka bir şeye ihtiyaç duyulmuyorsa kaldırın.
 
 ---
 
-Free, MIT licensed, open source. No premium tier, no waitlist.
+Ücretsiz, MIT lisanslı, açık kaynak. Premium katman yok, bekleme listesi yok.
 
-I open sourced how I build software. You can fork it and make it your own.
+Yazılım geliştirme yöntemimi açık kaynak olarak yayınladım. Çatalını alıp kendinize ait hale getirebilirsiniz.
 
-> **We're hiring.** Want to ship real products at AI-coding speed and help harden gstack?
-> Come work at YC — [ycombinator.com/software](https://ycombinator.com/software)
-> Extremely competitive salary and equity. San Francisco, Dogpatch District.
+> **İşe alım yapıyoruz.** Yapay zeka kodlama hızında gerçek ürünler geliştirmek ve gstack'i güçlendirmeye yardımcı olmak ister misiniz?
 
-## GBrain — persistent knowledge for your coding agent
+> YC'de çalışmaya gelin — [ycombinator.com/software](https://ycombinator.com/software)
+> Son derece rekabetçi maaş ve hisse senedi. San Francisco, Dogpatch Bölgesi.
 
-[GBrain](https://github.com/garrytan/gbrain) is a persistent knowledge base for AI agents — think of it as the memory your agent actually keeps between sessions. GStack gives you a one-command path from zero to "it's running, my agent can call it."
+## GBrain — Kodlama Ajanınız İçin Kalıcı Bilgi
+
+[GBrain](https://github.com/garrytan/gbrain), yapay zeka ajanları için kalıcı bir bilgi tabanıdır — bunu, ajanınızın oturumlar arasında gerçekten sakladığı bellek olarak düşünün. GStack, sıfırdan "çalışıyor, ajanım çağırabilir" noktasına tek komutla ulaşmanızı sağlar.
 
 ```bash
 /setup-gbrain
 ```
 
-Four paths, pick one:
+Dört yol, birini seçin:
 
-- **Supabase, existing URL** — your cloud agent already provisioned a brain; paste the Session Pooler URL, now this laptop uses the same data.
-- **Supabase, auto-provision** — paste a Supabase Personal Access Token; the skill creates a new project, polls to healthy, fetches the pooler URL, hands it to `gbrain init`. ~90 seconds end-to-end.
-- **PGLite local** — zero accounts, zero network, ~30 seconds. Isolated brain on this Mac only. Great for try-first; migrate to Supabase later with `/setup-gbrain --switch`.
-- **Remote gbrain MCP** — your brain runs on another machine (Tailscale, ngrok, internal LAN) or a teammate's server; paste an MCP URL and bearer token. Optionally pair with a local PGLite for symbol-aware code search in split-engine mode. Best for cross-machine memory without standing up a local DB.
+- **Supabase, mevcut URL** — bulut ajanınız zaten bir beyin oluşturdu; Oturum Havuzu URL'sini yapıştırın, artık bu dizüstü bilgisayar aynı verileri kullanıyor.
 
-After init, the skill offers to register gbrain as an MCP server for Claude Code (`claude mcp add gbrain -- gbrain serve`) so `gbrain search`, `gbrain put`, etc. show up as first-class typed tools — not bash shell-outs.
+- **Supabase, otomatik sağlama** — bir Supabase Kişisel Erişim Belirteci yapıştırın; beceri yeni bir proje oluşturur, sağlıklı olup olmadığını kontrol eder, havuz URL'sini alır ve `gbrain init` komutuna iletir. Uçtan uca ~90 saniye.
 
-**Keeping the brain current.** Run `/sync-gbrain` from any repo to re-index its code into gbrain (incremental by default, `--full` for a full reindex, `--dry-run` to preview). The skill registers the cwd as a federated source via `gbrain sources add`, runs `gbrain sync --strategy code`, and writes a `## GBrain Search Guidance` block to your project's CLAUDE.md so the agent prefers `gbrain search`/`code-def`/`code-refs` over Grep. The block is removed automatically if the capability check fails — no stale guidance pointing at tools that aren't installed.
+- **PGLite yerel** — sıfır hesap, sıfır ağ, ~30 saniye. Bu Mac'te yalnızca izole edilmiş bir gbrain. Önce deneme amaçlı kullanım için harika; daha sonra `/setup-gbrain --switch` komutuyla Supabase'e geçiş yapabilirsiniz.
 
-**Per-remote trust policy.** Each repo on your machine gets one of three tiers:
+- **Uzak gbrain MCP** — gbrain'iniz başka bir makinede (Tailscale, ngrok, dahili LAN) veya bir ekip arkadaşınızın sunucusunda çalışır; bir MCP URL'si ve taşıyıcı belirteci yapıştırın. İsteğe bağlı olarak, bölünmüş motor modunda sembol duyarlı kod araması için yerel bir PGLite ile eşleştirin. Yerel bir veritabanı kurmadan makineler arası bellek için en iyisidir.
 
-- `read-write` — agent can search the brain AND write new pages back from this repo
-- `read-only` — agent can search but never writes (best for multi-client consultants: search the shared brain, don't contaminate it with Client A's work while in Client B's repo)
-- `deny` — no gbrain interaction at all
+Başlatıldıktan sonra, beceri, gbrain'i Claude Code için bir MCP sunucusu olarak kaydetmeyi teklif eder (`claude mcp add gbrain -- gbrain serve`), böylece `gbrain search`, `gbrain put` vb. komutlar birinci sınıf yazılı araçlar olarak görünür — bash shell komutları olarak değil.
 
-The skill asks once per repo. The decision is sticky across worktrees and branches of the same remote.
+**Beyni güncel tutmak.** Herhangi bir depodan `/sync-gbrain` komutunu çalıştırarak kodunu gbrain'e yeniden indeksleyebilirsiniz (varsayılan olarak artımlı, tam yeniden indeksleme için `--full`, önizleme için `--dry-run`). Bu beceri, `gbrain sources add` komutuyla geçerli çalışma dizinini birleşik kaynak olarak kaydeder, `gbrain sync --strategy code` komutunu çalıştırır ve projenizin CLAUDE.md dosyasına `## GBrain Arama Kılavuzu` bloğu yazar, böylece aracı Grep yerine `gbrain search`/`code-def`/`code-refs` komutlarını tercih eder. Yetenek kontrolü başarısız olursa blok otomatik olarak kaldırılır — kurulu olmayan araçlara işaret eden eski kılavuzlar olmaz.
 
-**GStack memory sync (different feature, same private-repo infra).** Optionally pushes your gstack state (learnings, CEO plans, design docs, retros, developer profile) to a private git repo so your memory follows you across machines, with a one-time privacy prompt (everything allowlisted / artifacts only / off) and a defense-in-depth secret scanner that blocks AWS keys, tokens, PEM blocks, and JWTs before they leave your machine.
+**Uzak sunucu başına güven politikası.** Makinenizdeki her depo üç kademeden birini alır:
+
+- `okuma-yazma` — aracı, ortak sunucuda arama yapabilir VE bu depodan yeni sayfalar yazabilir
+- `sadece okuma` — aracı arama yapabilir ancak asla yazmaz (çoklu müşteri danışmanları için en iyisi: paylaşılan sunucuda arama yapın, Müşteri A'nın çalışmasıyla Müşteri B'nin deposunda kirletmeyin)
+- `reddetme` — hiçbir şekilde gbrain etkileşimi yok
+
+Beceri, depo başına bir kez sorar. Karar, aynı uzak sunucunun çalışma ağaçları ve dalları arasında kalıcıdır.
+
+**GStack bellek senkronizasyonu (farklı özellik, aynı özel depo altyapısı).** İsteğe bağlı olarak gstack durumunuzu (öğrenilenler, CEO planları, tasarım belgeleri, retrospektifler, geliştirici profili) özel bir git deposuna gönderir, böylece belleğiniz makineler arasında sizinle birlikte taşınır; tek seferlik gizlilik uyarısı (izin verilen her şey / yalnızca yapılar / kapalı) ve AWS anahtarlarını, token'ları, PEM bloklarını ve JWT'leri makinenizden ayrılmadan önce engelleyen derinlemesine savunma sağlayan bir gizli tarayıcı içerir.
 
 ```bash
 gstack-brain-init
 ```
 
-**Running gstack in Conductor?** Conductor explicitly strips `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` from every workspace's process env, so paid evals and gbrain embeddings won't work out of the box. Set `GSTACK_ANTHROPIC_API_KEY` and `GSTACK_OPENAI_API_KEY` in Conductor's workspace env config instead — gstack's TS entry points promote them to canonical names at runtime. Full details and the contributor checklist for adding the import to new entry points: [Conductor + GSTACK_* env vars](USING_GBRAIN_WITH_GSTACK.md#conductor--gstack_-env-vars).
+**Gstack'i Conductor'da mı çalıştırıyorsunuz?** Conductor, her çalışma alanının işlem ortamından `ANTHROPIC_API_KEY` ve `OPENAI_API_KEY`'i açıkça kaldırır, bu nedenle ücretli değerlendirmeler ve gbrain yerleştirmeleri varsayılan olarak çalışmaz. Bunun yerine, Conductor'ın çalışma alanı ortam yapılandırmasında `GSTACK_ANTHROPIC_API_KEY` ve `GSTACK_OPENAI_API_KEY` değişkenlerini ayarlayın; gstack'in TS giriş noktaları bunları çalışma zamanında kanonik adlara dönüştürür. Yeni giriş noktalarına içe aktarmayı eklemek için tüm ayrıntılar ve katkıda bulunanlar kontrol listesi: [Conductor + GSTACK_* ortam değişkenleri](USING_GBRAIN_WITH_GSTACK.md#conductor--gstack_-env-vars).
 
-**Full monty — every scenario, every flag, every bin helper, every troubleshooting step:** [USING_GBRAIN_WITH_GSTACK.md](USING_GBRAIN_WITH_GSTACK.md)
+**Tam kapsamlı bilgi — her senaryo, her bayrak, her yardımcı komut, her sorun giderme adımı:** [USING_GBRAIN_WITH_GSTACK.md](USING_GBRAIN_WITH_GSTACK.md)
 
-Other references: [docs/gbrain-sync.md](docs/gbrain-sync.md) (sync-specific guide) • [docs/gbrain-sync-errors.md](docs/gbrain-sync-errors.md) (error index)
+Diğer referanslar: [docs/gbrain-sync.md](docs/gbrain-sync.md) (senkronizasyona özel kılavuz) • [docs/gbrain-sync-errors.md](docs/gbrain-sync-errors.md) (hata dizini)
 
-## Docs
+## Belgeler
 
-| Doc | What it covers |
+| Belge | Neleri kapsar |
+
 |-----|---------------|
-| [Skill Deep Dives](docs/skills.md) | Philosophy, examples, and workflow for every skill (includes Greptile integration) |
-| [Builder Ethos](ETHOS.md) | Builder philosophy: Boil the Lake, Search Before Building, three layers of knowledge |
-| [Using GBrain with GStack](USING_GBRAIN_WITH_GSTACK.md) | Every path, flag, bin helper, and troubleshooting step for `/setup-gbrain` |
-| [GBrain Sync](docs/gbrain-sync.md) | Cross-machine memory setup, privacy modes, troubleshooting |
-| [Architecture](ARCHITECTURE.md) | Design decisions and system internals |
-| [Browser Reference](BROWSER.md) | Full command reference for `/browse` |
-| [Contributing](CONTRIBUTING.md) | Dev setup, testing, contributor mode, and dev mode |
-| [Changelog](CHANGELOG.md) | What's new in every version |
 
-## Privacy & Telemetry
+| [Beceri Derinlemesine İncelemeleri](docs/skills.md) | Her beceri için felsefe, örnekler ve iş akışı (Greptile entegrasyonunu içerir) |
 
-gstack includes **opt-in** usage telemetry to help improve the project. Here's exactly what happens:
+| [Yapımcı Etiği](ETHOS.md) | Yapımcı felsefesi: Gölü Kaynat, İnşa Etmeden Önce Ara, üç bilgi katmanı |
 
-- **Default is off.** Nothing is sent anywhere unless you explicitly say yes.
-- **On first run,** gstack asks if you want to share anonymous usage data. You can say no.
-- **What's sent (if you opt in):** skill name, duration, success/fail, gstack version, OS. That's it.
-- **What's never sent:** code, file paths, repo names, branch names, prompts, or any user-generated content.
-- **Change anytime:** `gstack-config set telemetry off` disables everything instantly.
+| [GBrain'i GStack ile Kullanma](USING_GBRAIN_WITH_GSTACK.md) | `/setup-gbrain` için her yol, bayrak, ikili yardımcı ve sorun giderme adımı |
 
-Data is stored in [Supabase](https://supabase.com) (open source Firebase alternative). The schema is in [`supabase/migrations/`](supabase/migrations/) — you can verify exactly what's collected. The Supabase publishable key in the repo is a public key (like a Firebase API key) — row-level security policies deny all direct access. Telemetry flows through validated edge functions that enforce schema checks, event type allowlists, and field length limits.
+| [GBrain Senkronizasyonu](docs/gbrain-sync.md) | Makineler arası bellek kurulumu, gizlilik modları, sorun giderme |
 
-**Local analytics are always available.** Run `gstack-analytics` to see your personal usage dashboard from the local JSONL file — no remote data needed.
+| [Mimari](ARCHITECTURE.md) | Tasarım kararları ve sistem iç yapısı |
 
-## Troubleshooting
+| [Tarayıcı Referansı](BROWSER.md) | Tam komut referansı `/browse` için referans |
 
-**Skill not showing up?** `cd ~/.claude/skills/gstack && ./setup`
+| [Katkıda Bulunma](CONTRIBUTING.md) | Geliştirme kurulumu, test, katkıda bulunan modu ve geliştirme modu |
 
-**`/browse` fails?** `cd ~/.claude/skills/gstack && bun install && bun run build`
+| [Değişiklik Günlüğü](CHANGELOG.md) | Her sürümde neler yeni? |
 
-**Stale install?** Run `/gstack-upgrade` — or set `auto_upgrade: true` in `~/.gstack/config.yaml`
+## Gizlilik ve Telemetri
 
-**Want shorter commands?** `cd ~/.claude/skills/gstack && ./setup --no-prefix` — switches from `/gstack-qa` to `/qa`. Your choice is remembered for future upgrades.
+gstack, projeyi geliştirmeye yardımcı olmak için **isteğe bağlı** kullanım telemetrisi içerir. İşte tam olarak neler oluyor:
 
-**Want namespaced commands?** `cd ~/.claude/skills/gstack && ./setup --prefix` — switches from `/qa` to `/gstack-qa`. Useful if you run other skill packs alongside gstack.
+- **Varsayılan olarak kapalıdır.** Açıkça evet demediğiniz sürece hiçbir şey hiçbir yere gönderilmez.
 
-**Codex says "Skipped loading skill(s) due to invalid SKILL.md"?** Your Codex skill descriptions are stale. Fix: `cd ~/.codex/skills/gstack && git pull && ./setup --host codex` — or for repo-local installs: `cd "$(readlink -f .agents/skills/gstack)" && git pull && ./setup --host codex`
+- **İlk çalıştırmada,** gstack anonim kullanım verilerini paylaşmak isteyip istemediğinizi sorar. Hayır diyebilirsiniz.
 
-**Windows users:** gstack works on Windows 11 via Git Bash or WSL. Node.js is required in addition to Bun — Bun has a known bug with Playwright's pipe transport on Windows ([bun#4253](https://github.com/oven-sh/bun/issues/4253)). The browse server automatically falls back to Node.js. Make sure both `bun` and `node` are on your PATH.
+- **Gönderilenler (eğer seçerseniz):** beceri adı, süre, başarı/başarısızlık, gstack sürümü, işletim sistemi. Hepsi bu.
 
-On Windows without Developer Mode (MSYS2 / Git Bash), `setup` falls back to file copies instead of symlinks because `ln -snf` produces frozen copies that don't refresh on `git pull`. **Re-run `cd ~/.claude/skills/gstack && ./setup` after every `git pull`** so your skill files match the repo. `setup` prints a one-line note reminding you. Unix and WSL keep symlinks and don't need the re-run.
+- **Asla gönderilmeyenler:** kod, dosya yolları, depo adları, dal adları, istemler veya kullanıcı tarafından oluşturulan herhangi bir içerik.
 
-**Claude says it can't see the skills?** Make sure your project's `CLAUDE.md` has a gstack section. Add this:
+- **İstediğiniz zaman değiştirin:** `gstack-config set telemetry off` komutu her şeyi anında devre dışı bırakır.
+
+Veriler [Supabase](https://supabase.com) (açık kaynaklı Firebase alternatifi) içinde saklanır. Şema [`supabase/migrations/`](supabase/migrations/) dizinindedir — tam olarak neyin toplandığını doğrulayabilirsiniz. Depodaki Supabase yayınlanabilir anahtarı, bir Firebase API anahtarı gibi genel bir anahtardır — satır düzeyindeki güvenlik politikaları tüm doğrudan erişimi engeller. Telemetri, şema kontrollerini, olay türü izin listelerini ve alan uzunluğu sınırlarını uygulayan doğrulanmış uç fonksiyonlar aracılığıyla akar.
+
+**Yerel analizler her zaman mevcuttur.** Yerel JSONL dosyasından kişisel kullanım panonuzu görmek için `gstack-analytics` komutunu çalıştırın — uzaktan veri gerekmez.
+
+## Sorun Giderme
+
+**Beceri görünmüyor mu?** `cd ~/.claude/skills/gstack && ./setup`
+
+**`/browse` başarısız mı oluyor?** `cd ~/.claude/skills/gstack && bun install && bun run build`
+
+**Kurulum eski mi?** `/gstack-upgrade` komutunu çalıştırın veya `~/.gstack/config.yaml` dosyasında `auto_upgrade: true` ayarını yapın.
+
+**Daha kısa komutlar mı istiyorsunuz?** `cd ~/.claude/skills/gstack && ./setup --no-prefix` — `/gstack-qa`'dan `/qa`'ya geçiş yapar. Seçiminiz gelecekteki yükseltmeler için hatırlanır.
+
+**Adlandırılmış komutlar mı istiyorsunuz?** `cd ~/.claude/skills/gstack && ./setup --prefix` — `/qa` dizinini `/gstack-qa` dizinine değiştirir. Gstack ile birlikte başka beceri paketleri çalıştırıyorsanız kullanışlıdır.
+
+**Codex "Geçersiz SKILL.md nedeniyle beceri(ler) yükleme atlandı" mı diyor?** Codex beceri açıklamalarınız güncel değil. Çözüm: `cd ~/.codex/skills/gstack && git pull && ./setup --host codex` — veya depo yerel kurulumları için: `cd "$(readlink -f .agents/skills/gstack)" && git pull && ./setup --host codex`
+
+**Windows kullanıcıları:** gstack, Git Bash veya WSL aracılığıyla Windows 11'de çalışır. Bun'a ek olarak Node.js gereklidir — Bun'un Windows'ta Playwright'ın pipe transport'uyla ilgili bilinen bir hatası vardır ([bun#4253](https://github.com/oven-sh/bun/issues/4253)). Göz atma sunucusu otomatik olarak Node.js'ye geri döner. Hem `bun` hem de `node`'un PATH'inizde olduğundan emin olun.
+
+Geliştirici Modu olmayan Windows'ta (MSYS2 / Git Bash), `setup`, `ln -snf` komutu `git pull` işleminde yenilenmeyen donmuş kopyalar ürettiği için sembolik bağlantılar yerine dosya kopyalarına geri döner. **Her `git pull` işleminden sonra `cd ~/.claude/skills/gstack && ./setup` komutunu tekrar çalıştırın** böylece beceri dosyalarınız depoyla eşleşir. `setup`, size hatırlatan tek satırlık bir not yazdırır. Unix ve WSL sembolik bağlantıları korur ve tekrar çalıştırmaya gerek duymaz.
+
+**Claude becerileri göremiyor mu diyor?** Projenizin `CLAUDE.md` dosyasında bir gstack bölümü olduğundan emin olun. Şunu ekleyin:
 
 ```
 ## gstack
-Use /browse from gstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
-Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
-/design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy,
-/canary, /benchmark, /browse, /open-gstack-browser, /qa, /qa-only, /design-review,
-/setup-browser-cookies, /setup-deploy, /setup-gbrain, /sync-gbrain, /retro, /investigate,
-/document-release, /document-generate, /codex, /cso, /autoplan, /pair-agent, /careful, /freeze,
-/guard, /unfreeze, /gstack-upgrade, /learn.
+Tüm web tarama işlemleri için gstack'ten /browse komutunu kullanın. Asla mcp__claude-in-chrome__* araçlarını kullanmayın.
+
+Mevcut beceriler: /ofis-saatleri, /CEO-incelemesi-planı, /mühendis-incelemesi-planı, /tasarım-incelemesi-planı,
+/tasarım-danışmanlığı, /tasarım-shotgun, /html-tasarım, /inceleme, /gönderme, /yerleştirme ve dağıtım,
+/canary, /benchmark, /browse, /gstack-browser-açma, /qa, /qa-sadece, /tasarım-incelemesi,
+/tarayıcı-çerezleri-kurulum, /dağıtım-kurulum, /gbrain-kurulum, /gbrain-senkronizasyon, /retro, /araştırma,
+
+/belge-yayınlama, /belge-oluşturma, /codex, /cso, /otomatik-planlama, /çift-ajan, /dikkatli, /dondurma,
+/koruma, /dondurmanınsonlandırılması, /gstack-yükseltme, /öğrenme.
+
 ```
 
-## License
+## Lisans
 
-MIT. Free forever. Go build something.
+MIT. Sonsuza dek ücretsiz. Gidip bir şeyler inşa edin.
+### Adım 2: Ekip modu — paylaşılan depolar için otomatik güncelleme (önerilir)
+
+Deponuzun içinden bunu yapıştırın. Sizi ekip moduna geçirir, depoyu başlatır, böylece ekip arkadaşları da kullanabilir.
