@@ -1,24 +1,5 @@
-# gstack
+# gstack-YAZILIM EKİBİ
 
-> "Aralık ayından beri neredeyse hiç kod yazmadım, bu da son derece büyük bir değişiklik." — [Andrej Karpathy](https://fortune.com/2026/03/21/andrej-karpathy-openai-cofounder-ai-agents-coding-state-of-psychosis-openclaw/), No Priors podcast, Mart 2026
-
-Karpathy'nin bunu söylediğini duyduğumda, nasıl olduğunu öğrenmek istedim. Bir kişi yirmi kişilik bir ekip gibi nasıl iş çıkarabilir? Peter Steinberger, [OpenClaw](https://github.com/openclaw/openclaw) — 247 bin GitHub yıldızı — yapay zeka ajanlarıyla esasen tek başına geliştirdi. Devrim burada. Doğru araçlara sahip tek bir geliştirici, geleneksel bir ekipten daha hızlı hareket edebilir.
-
-Ben [Garry Tan](https://x.com/garrytan), [Y Combinator](https://www.ycombinator.com/) Başkanı ve CEO'suyum. Coinbase, Instacart, Rippling gibi binlerce startup ile, daha bir veya iki kişiyle bir garajda çalıştıkları zamanlardan beri birlikte çalıştım. YC'den önce, Palantir'de ilk mühendis/proje yöneticisi/tasarımcılardan biriydim, Posterous'u kurdum (Twitter'a satıldı) ve YC'nin iç sosyal ağı Bookface'i geliştirdim.
-
-**gstack benim cevabım.** Yirmi yıldır ürün geliştiriyorum ve şu anda her zamankinden daha fazla ürün piyasaya sürüyorum. Son 60 günde: 3 üretim hizmeti, 40'tan fazla piyasaya sürülen özellik, yarı zamanlı çalışırken YC'yi tam zamanlı olarak yönetiyorum. Mantıksal kod değişikliğine göre —yapay zekanın şişirdiği ham satır sayısına değil— 2026 yılındaki çalışma hızım **2013 yılındaki hızımın yaklaşık 810 katı** (11.417 satır/gün vs 14 mantıksal satır/gün). Yıl başından (18 Nisan'a kadar) 2026 yılı, **2013 yılının tamamının 240 katı** kadar üretim gerçekleştirdi. Bu ölçüm, bir demo deposu hariç, Bookface dahil 40'tan fazla genel ve özel `garrytan/*` deposunda yapıldı. Çoğunu yapay zeka yazdı. Önemli olan kimin yazdığı değil, neyin piyasaya sürüldüğüdür.
-
-> Ham satır sayılarının yapay zeka ile şişirildiği konusunda satır sayısı eleştirmenleri haksız değil. Ancak, enflasyona göre normalize edildiğinde daha az üretken olduğum konusunda yanılıyorlar. Çok daha üretkenim. Tam metodoloji, uyarılar ve yeniden üretme betiği: **[LOC Tartışması Üzerine](docs/ON_THE_LOC_CONTROVERSY.md)**.
-
-**2026 — 1.237 katkı ve artmaya devam ediyor:**
-
-![GitHub katkıları 2026 — 1.237 katkı, Ocak-Mart aylarında büyük ivme](docs/images/github-2026.png)
-
-**2013 — YC'de Bookface'i kurduğum zaman (772 katkı):**
-
-![GitHub katkıları 2013 — YC'de Bookface'i kuran 772 katkı](docs/images/github-2013.png)
-
-Aynı kişi. Farklı dönem. Fark, kullanılan araçlarda.
 
 **gstack benim çalışma yöntemim.** Claude Code'u sanal bir mühendislik ekibine dönüştürüyor: Ürünü yeniden düşünen bir CEO, mimariyi kilitleyen bir mühendislik yöneticisi, yapay zeka hatalarını yakalayan bir tasarımcı, üretim hatalarını bulan bir gözden geçiren, gerçek bir tarayıcı açan bir QA lideri, OWASP + STRIDE denetimleri yapan bir güvenlik görevlisi ve PR'ı gönderen bir sürüm mühendisi. Yirmi üç uzman ve sekiz güçlü araç, hepsi slash komutları, hepsi Markdown, hepsi ücretsiz, MIT lisansı.
 
